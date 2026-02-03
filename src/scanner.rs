@@ -244,6 +244,57 @@ fn check_matchers(
                     }
                 }
             }
+            "response_status" => {
+                if matcher.condition == "equals" {
+                    for pattern in &matcher.patterns {
+                        if let Ok(expected_status) = pattern.parse::<u16>() {
+                            if response.status_code == expected_status {
+                                return true;
+                            }
+                        }
+                    }
+                } else if matcher.condition == "not_equals" {
+                    let mut all_different = true;
+                    for pattern in &matcher.patterns {
+                        if let Ok(expected_status) = pattern.parse::<u16>() {
+                            if response.status_code == expected_status {
+                                all_different = false;
+                                break;
+                            }
+                        }
+                    }
+                    if all_different {
+                        return true;
+                    }
+                }
+            }
+            "response_header" => {
+                if matcher.condition == "contains" {
+                    for pattern in &matcher.patterns {
+                        for (_, header_value) in &response.headers {
+                            if header_value.contains(pattern) {
+                                return true;
+                            }
+                        }
+                    }
+                } else if matcher.condition == "not_contains" {
+                    let mut found = false;
+                    for pattern in &matcher.patterns {
+                        for (_, header_value) in &response.headers {
+                            if header_value.contains(pattern) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if found {
+                            break;
+                        }
+                    }
+                    if !found {
+                        return true;
+                    }
+                }
+            }
             _ => {
                 tracing::warn!("Unknown matcher type: {}", matcher.matcher_type);
             }
