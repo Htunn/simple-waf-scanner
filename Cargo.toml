@@ -3,14 +3,16 @@ name = "simple-waf-scanner"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.75"
-authors = ["Your Name <your.email@example.com>"]
-description = "A WAF detection and bypass testing tool for authorized security testing"
+authors = ["WAF Scanner Contributors"]
+description = "WAF detection and bypass testing tool with 11+ fingerprints and 7+ evasion techniques for authorized security testing"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/yourusername/simple-waf-scanner"
 homepage = "https://github.com/yourusername/simple-waf-scanner"
+documentation = "https://docs.rs/simple-waf-scanner"
 keywords = ["security", "waf", "pentesting", "scanner", "http"]
 categories = ["command-line-utilities", "development-tools::testing"]
 readme = "README.md"
+exclude = ["test_detection.sh", ".gitignore"]
 
 [lib]
 name = "simple_waf_scanner"

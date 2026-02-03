@@ -7,7 +7,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_max_level(tracing::Level::INFO)
         .init();
 
-    let mut config = Config::new("https://api-prd.ais.gov.sg".to_string());
+    let mut config = Config::new("https://example.com".to_string());
     config.concurrency = 2;
     config.delay_ms = 1000;
 

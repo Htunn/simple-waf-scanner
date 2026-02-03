@@ -107,7 +107,12 @@ async fn main() -> anyhow::Result<()> {
 fn require_consent() -> anyhow::Result<()> {
     // Block non-interactive execution
     if !std::io::stdin().is_terminal() {
-        eprintln!("{}", "ERROR: This tool requires interactive terminal consent.".red().bold());
+        eprintln!(
+            "{}",
+            "ERROR: This tool requires interactive terminal consent."
+                .red()
+                .bold()
+        );
         eprintln!("{}", "Automated/scripted execution is not permitted.".red());
         std::process::exit(1);
     }
@@ -137,7 +142,10 @@ fn require_consent() -> anyhow::Result<()> {
 
     // Require exact consent
     loop {
-        print!("\n{}", "Type 'I ACCEPT' to confirm you have authorization: ".cyan());
+        print!(
+            "\n{}",
+            "Type 'I ACCEPT' to confirm you have authorization: ".cyan()
+        );
         io::stdout().flush()?;
 
         let mut input = String::new();
@@ -146,7 +154,10 @@ fn require_consent() -> anyhow::Result<()> {
         let trimmed = input.trim();
 
         if trimmed == "I ACCEPT" {
-            println!("{}", "✓ Consent confirmed. Proceeding with scan...\n".green());
+            println!(
+                "{}",
+                "✓ Consent confirmed. Proceeding with scan...\n".green()
+            );
             return Ok(());
         } else if trimmed.to_lowercase() == "no" || trimmed.is_empty() {
             println!("{}", "Scan cancelled.".yellow());
@@ -169,11 +180,7 @@ fn print_pretty_output(results: &ScanResults, verbose: bool) {
     println!("{} {}", "Timestamp:".bold(), results.timestamp);
 
     if let Some(ref waf) = results.waf_detected {
-        println!(
-            "{} {}",
-            "WAF Detected:".bold(),
-            waf.red().bold()
-        );
+        println!("{} {}", "WAF Detected:".bold(), waf.red().bold());
     } else {
         println!("{} {}", "WAF Detected:".bold(), "None".green());
     }
@@ -189,7 +196,13 @@ fn print_pretty_output(results: &ScanResults, verbose: bool) {
             .set_content_arrangement(ContentArrangement::Dynamic);
 
         if verbose {
-            table.set_header(vec!["Severity", "Category", "Payload", "Technique", "Status"]);
+            table.set_header(vec![
+                "Severity",
+                "Category",
+                "Payload",
+                "Technique",
+                "Status",
+            ]);
         } else {
             table.set_header(vec!["Severity", "Category", "Payload", "Status"]);
         }
@@ -236,22 +249,21 @@ fn print_pretty_output(results: &ScanResults, verbose: bool) {
     println!("{}", "─".repeat(70).cyan());
     println!("{}", "  SUMMARY".bold());
     println!("{}", "─".repeat(70).cyan());
-    println!(
-        "Total Payloads Tested: {}",
-        results.summary.total_payloads
-    );
+    println!("Total Payloads Tested: {}", results.summary.total_payloads);
     println!(
         "Successful Bypasses: {}",
-        results.summary.successful_bypasses.to_string().green().bold()
+        results
+            .summary
+            .successful_bypasses
+            .to_string()
+            .green()
+            .bold()
     );
     println!(
         "Effective Techniques: {}",
         results.summary.techniques_effective
     );
-    println!(
-        "Scan Duration: {:.2}s",
-        results.summary.duration_secs
-    );
+    println!("Scan Duration: {:.2}s", results.summary.duration_secs);
     println!("{}", "═".repeat(70).cyan());
     println!();
 }

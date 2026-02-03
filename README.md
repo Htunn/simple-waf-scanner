@@ -58,6 +58,69 @@ A powerful Web Application Firewall (WAF) detection and bypass testing tool writ
 
 ---
 
+## How It Works
+
+### Scan Flow Diagram
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant CLI
+    participant Scanner
+    participant PayloadManager
+    participant WafDetector
+    participant EvasionEngine
+    participant Target
+
+    User->>CLI: waf-scan https://target.com
+    CLI->>User: Display Legal Warning
+    User->>CLI: Type "I ACCEPT"
+    CLI->>Scanner: Initialize with Config
+    
+    Scanner->>PayloadManager: Load Payloads
+    PayloadManager-->>Scanner: Return Payloads (XSS, SQLi, LFI, etc.)
+    
+    Scanner->>Target: Send Baseline Request
+    Target-->>Scanner: Response (headers, body, cookies)
+    
+    Scanner->>WafDetector: Detect WAF
+    WafDetector->>WafDetector: Match against 11+ signatures
+    WafDetector-->>Scanner: WAF Name (or None)
+    
+    loop For each payload
+        Scanner->>EvasionEngine: Apply all techniques
+        EvasionEngine-->>Scanner: Transformed payloads
+        
+        loop For each transformed payload
+            Scanner->>Target: Send malicious request
+            Target-->>Scanner: Response
+            Scanner->>Scanner: Check matchers
+        end
+    end
+    
+    Scanner-->>CLI: Scan Results
+    CLI->>User: Display findings (table or JSON)
+```
+
+### Detection Algorithm
+
+1. **WAF Fingerprinting** - Analyzes response headers, body patterns, status codes, and cookies
+2. **Weighted Scoring** - Headers (2 points), other criteria (1 point each)
+3. **Threshold** - Score ≥ 2 triggers detection
+
+### Evasion Techniques
+
+Each payload is automatically transformed using:
+- **URL Encoding** - `%3Cscript%3E`
+- **Double Encoding** - `%253Cscript%253E`
+- **Case Variation** - `<ScRiPt>`
+- **Null Bytes** - `%00<script>`
+- **Comments** - `<scr<!---->ipt>`
+- **Unicode** - `\uFF1Cscript\uFF1E`
+- **Path Traversal** - `....//`
+
+---
+
 ## Installation
 
 ### From crates.io

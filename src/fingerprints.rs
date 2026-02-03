@@ -36,7 +36,10 @@ impl WafDetector {
         const SIGNATURES: &str = include_str!("../fingerprints/waf-signatures.json");
 
         let signatures: Vec<WafSignature> = serde_json::from_str(SIGNATURES).map_err(|e| {
-            crate::error::ScanError::InvalidPayload(format!("Failed to parse WAF signatures: {}", e))
+            crate::error::ScanError::InvalidPayload(format!(
+                "Failed to parse WAF signatures: {}",
+                e
+            ))
         })?;
 
         tracing::info!("Loaded {} WAF signatures", signatures.len());
@@ -58,14 +61,16 @@ impl WafDetector {
     /// Check if response matches a signature
     fn matches_signature(&self, response: &DetectionResponse, signature: &WafSignature) -> bool {
         let mut score = 0;
-        let mut total_criteria = 0;
 
         // Check headers - any matching header increases score
         if !signature.detection.headers.is_empty() {
-            total_criteria += 1;
             for (header_name, pattern) in &signature.detection.headers {
                 if let Some(header_value) = response.headers.get(&header_name.to_lowercase()) {
-                    if pattern == ".*" || header_value.to_lowercase().contains(&pattern.to_lowercase()) {
+                    if pattern == ".*"
+                        || header_value
+                            .to_lowercase()
+                            .contains(&pattern.to_lowercase())
+                    {
                         score += 2; // Headers are strong indicators, give more weight
                         break;
                     }
@@ -75,9 +80,12 @@ impl WafDetector {
 
         // Check body patterns
         if !signature.detection.body_patterns.is_empty() {
-            total_criteria += 1;
             for pattern in &signature.detection.body_patterns {
-                if response.body.to_lowercase().contains(&pattern.to_lowercase()) {
+                if response
+                    .body
+                    .to_lowercase()
+                    .contains(&pattern.to_lowercase())
+                {
                     score += 1;
                     break;
                 }
@@ -86,7 +94,6 @@ impl WafDetector {
 
         // Check status codes
         if !signature.detection.status_codes.is_empty() {
-            total_criteria += 1;
             for status in &signature.detection.status_codes {
                 if *status == response.status_code {
                     score += 1;
@@ -97,7 +104,6 @@ impl WafDetector {
 
         // Check cookies
         if !signature.detection.cookies.is_empty() {
-            total_criteria += 1;
             for cookie_pattern in &signature.detection.cookies {
                 for cookie in &response.cookies {
                     if cookie.contains(cookie_pattern) {
@@ -142,7 +148,12 @@ pub struct DetectionResponse {
 
 impl DetectionResponse {
     /// Create a new detection response
-    pub fn new(status_code: u16, headers: HashMap<String, String>, body: String, cookies: Vec<String>) -> Self {
+    pub fn new(
+        status_code: u16,
+        headers: HashMap<String, String>,
+        body: String,
+        cookies: Vec<String>,
+    ) -> Self {
         Self {
             status_code,
             headers,

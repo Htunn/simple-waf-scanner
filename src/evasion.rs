@@ -76,10 +76,7 @@ impl fmt::Display for EvasionTechnique {
 }
 
 /// Apply all enabled techniques to a payload
-pub fn apply_all_techniques(
-    payload: &str,
-    filter: Option<&[String]>,
-) -> Vec<(String, String)> {
+pub fn apply_all_techniques(payload: &str, filter: Option<&[String]>) -> Vec<(String, String)> {
     let techniques = if let Some(filter_list) = filter {
         filter_list
             .iter()

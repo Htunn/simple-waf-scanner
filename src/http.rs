@@ -46,14 +46,16 @@ pub async fn send_request(
     let headers = response
         .headers()
         .iter()
-        .map(|(k, v)| (k.as_str().to_lowercase(), v.to_str().unwrap_or("").to_string()))
+        .map(|(k, v)| {
+            (
+                k.as_str().to_lowercase(),
+                v.to_str().unwrap_or("").to_string(),
+            )
+        })
         .collect();
 
     // Extract cookies
-    let cookies: Vec<String> = response
-        .cookies()
-        .map(|c| c.name().to_string())
-        .collect();
+    let cookies: Vec<String> = response.cookies().map(|c| c.name().to_string()).collect();
 
     let body = response.text().await.unwrap_or_default();
 

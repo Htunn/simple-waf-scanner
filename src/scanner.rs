@@ -146,12 +146,9 @@ impl Scanner {
                         }
 
                         // Send request with payload as query parameter
-                        let response = send_request(
-                            &client,
-                            &target,
-                            Some(("test", &transformed_payload)),
-                        )
-                        .await;
+                        let response =
+                            send_request(&client, &target, Some(("test", &transformed_payload)))
+                                .await;
 
                         match response {
                             Ok(resp) => {
