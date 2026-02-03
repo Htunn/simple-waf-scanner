@@ -1,0 +1,56 @@
+[
+  {
+    "id": "path-traversal-basic",
+    "info": {
+      "name": "Path Traversal - Directory Traversal",
+      "severity": "medium",
+      "category": "path-traversal",
+      "description": "Tests for path traversal vulnerabilities",
+      "references": [
+        "https://owasp.org/www-community/attacks/Path_Traversal"
+      ],
+      "tags": [
+        "path-traversal",
+        "directory-traversal"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "../",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "..%2F",
+        "encoding": "url",
+        "method": "GET"
+      },
+      {
+        "value": "..%252F",
+        "encoding": "double-url",
+        "method": "GET"
+      },
+      {
+        "value": "..\\",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "....//",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "not_contains",
+        "patterns": [
+          "404",
+          "Not Found",
+          "Access Denied"
+        ]
+      }
+    ]
+  }
+]

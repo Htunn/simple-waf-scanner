@@ -1,0 +1,54 @@
+[
+  {
+    "id": "cmd-injection-basic",
+    "info": {
+      "name": "Command Injection - Basic Tests",
+      "severity": "critical",
+      "category": "command-injection",
+      "description": "Tests for OS command injection vulnerabilities",
+      "references": [
+        "https://owasp.org/www-community/attacks/Command_Injection"
+      ],
+      "tags": [
+        "command-injection",
+        "rce"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "; echo 'vulnerable'",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "| echo vulnerable",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "& echo vulnerable &",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "`echo vulnerable`",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "$(echo vulnerable)",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "vulnerable"
+        ]
+      }
+    ]
+  }
+]
