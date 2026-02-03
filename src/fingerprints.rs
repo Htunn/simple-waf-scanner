@@ -58,15 +58,15 @@ impl WafDetector {
     /// Check if response matches a signature
     fn matches_signature(&self, response: &DetectionResponse, signature: &WafSignature) -> bool {
         let mut score = 0;
-        let mut required_matches = 0;
+        let mut total_criteria = 0;
 
-        // Check headers
+        // Check headers - any matching header increases score
         if !signature.detection.headers.is_empty() {
-            required_matches += 1;
+            total_criteria += 1;
             for (header_name, pattern) in &signature.detection.headers {
                 if let Some(header_value) = response.headers.get(&header_name.to_lowercase()) {
                     if pattern == ".*" || header_value.to_lowercase().contains(&pattern.to_lowercase()) {
-                        score += 1;
+                        score += 2; // Headers are strong indicators, give more weight
                         break;
                     }
                 }
@@ -75,7 +75,7 @@ impl WafDetector {
 
         // Check body patterns
         if !signature.detection.body_patterns.is_empty() {
-            required_matches += 1;
+            total_criteria += 1;
             for pattern in &signature.detection.body_patterns {
                 if response.body.to_lowercase().contains(&pattern.to_lowercase()) {
                     score += 1;
@@ -86,6 +86,7 @@ impl WafDetector {
 
         // Check status codes
         if !signature.detection.status_codes.is_empty() {
+            total_criteria += 1;
             for status in &signature.detection.status_codes {
                 if *status == response.status_code {
                     score += 1;
@@ -96,6 +97,7 @@ impl WafDetector {
 
         // Check cookies
         if !signature.detection.cookies.is_empty() {
+            total_criteria += 1;
             for cookie_pattern in &signature.detection.cookies {
                 for cookie in &response.cookies {
                     if cookie.contains(cookie_pattern) {
@@ -106,8 +108,9 @@ impl WafDetector {
             }
         }
 
-        // Require at least 2 matching criteria or all available criteria matched
-        score >= 2 || (required_matches > 0 && score >= required_matches)
+        // Match if we have at least one strong indicator (header match = 2 points)
+        // OR at least 2 other matching criteria
+        score >= 2
     }
 
     /// Get all loaded signatures

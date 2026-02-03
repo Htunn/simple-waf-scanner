@@ -5,20 +5,60 @@
     "detection": {
       "headers": {
         "server": "cloudflare",
-        "cf-ray": ".*"
+        "cf-ray": ".*",
+        "cf-cache-status": ".*",
+        "cf-request-id": ".*",
+        "x-frame-options": ".*"
       },
       "body_patterns": [
         "cloudflare",
         "cf-browser-verification",
-        "Attention Required! | Cloudflare"
+        "Attention Required! | Cloudflare",
+        "CF-RAY",
+        "checking your browser",
+        "ray id",
+        "cloudflare-nginx"
       ],
       "status_codes": [
         403,
-        503
+        503,
+        520,
+        521,
+        522,
+        523,
+        524
       ],
       "cookies": [
         "__cfduid",
-        "__cf_bm"
+        "__cf_bm",
+        "cf_clearance"
+      ]
+    }
+  },
+  {
+    "name": "Azure Front Door",
+    "vendor": "Microsoft Azure",
+    "detection": {
+      "headers": {
+        "x-azure-ref": ".*",
+        "x-fd-healthprobe": ".*",
+        "x-azure-requestid": ".*",
+        "x-azure-fdid": ".*"
+      },
+      "body_patterns": [
+        "Azure Front Door",
+        "Microsoft-Azure-Application-Gateway",
+        "The request was blocked by Azure Front Door",
+        "Our services aren't available right now"
+      ],
+      "status_codes": [
+        403,
+        502,
+        503
+      ],
+      "cookies": [
+        "ARRAffinity",
+        "ARRAffinitySameSite"
       ]
     }
   },
