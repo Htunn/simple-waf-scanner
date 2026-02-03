@@ -34,7 +34,7 @@ A powerful Web Application Firewall (WAF) detection and bypass testing tool writ
 
 ## Features
 
-✅ **WAF Fingerprinting** - Detect 10+ popular WAFs (Cloudflare, AWS WAF, Akamai, ModSecurity, Imperva, Sucuri, Wordfence, Barracuda, F5, FortiWeb)
+✅ **WAF Fingerprinting** - Detect 11+ popular WAFs (Cloudflare, Azure Front Door, AWS WAF, Akamai, ModSecurity, Imperva, Sucuri, Wordfence, Barracuda, F5, FortiWeb)
 
 ✅ **Advanced Evasion Techniques** - 7+ bypass methods including:
 - URL encoding & double encoding
@@ -44,9 +44,21 @@ A powerful Web Application Firewall (WAF) detection and bypass testing tool writ
 - Unicode normalization
 - Path traversal variants
 
+✅ **Comprehensive Payloads** - 240+ sophisticated attack payloads across 10 categories:
+- **XSS (Cross-Site Scripting)** - 30+ payloads including polyglots, DOM-based, filter evasion, mutation XSS
+- **SQL Injection** - 20+ payloads with time-based blind, boolean-based, WAF-specific bypasses
+- **Remote Code Execution (RCE)** - 35+ payloads including shellshock, SSTI, expression language injection
+- **Local File Inclusion (LFI)** - 20+ payloads with PHP wrappers, double encoding, null bytes
+- **Command Injection** - 30+ payloads with IFS bypass, brace expansion, backslash evasion
+- **Path Traversal** - Multiple encoding and obfuscation techniques
+- **Server-Side Request Forgery (SSRF)** - 25+ payloads targeting cloud metadata, internal services
+- **XML External Entity (XXE)** - 12+ payloads for file disclosure and SSRF
+- **NoSQL Injection** - 24+ MongoDB-specific payloads including regex and operator injection
+- **Server-Side Template Injection (SSTI)** - 30+ payloads for Jinja2, Freemarker, Thymeleaf, etc.
+
 ✅ **Structured Payloads** - JSON-based payload system with metadata (severity, category, OWASP references)
 
-✅ **Embedded Defaults** - Ships with 6 payload categories (XSS, SQLi, LFI, RCE, Path Traversal, Command Injection)
+✅ **Embedded Defaults** - Ships with all payloads built-in, no external files required
 
 ✅ **Custom Payloads** - Load your own payload files in JSON format
 

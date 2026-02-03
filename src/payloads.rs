@@ -67,6 +67,10 @@ impl PayloadManager {
         const RCE: &str = include_str!("../payloads/rce.json");
         const PATH_TRAVERSAL: &str = include_str!("../payloads/path-traversal.json");
         const CMD_INJECTION: &str = include_str!("../payloads/command-injection.json");
+        const SSRF: &str = include_str!("../payloads/ssrf.json");
+        const XXE: &str = include_str!("../payloads/xxe.json");
+        const NOSQL: &str = include_str!("../payloads/nosql-injection.json");
+        const SSTI: &str = include_str!("../payloads/ssti.json");
 
         let mut all_payloads = Vec::new();
 
@@ -78,6 +82,10 @@ impl PayloadManager {
             ("rce", RCE),
             ("path-traversal", PATH_TRAVERSAL),
             ("command-injection", CMD_INJECTION),
+            ("ssrf", SSRF),
+            ("xxe", XXE),
+            ("nosql-injection", NOSQL),
+            ("ssti", SSTI),
         ] {
             match serde_json::from_str::<Vec<Payload>>(content) {
                 Ok(mut payloads) => all_payloads.append(&mut payloads),

