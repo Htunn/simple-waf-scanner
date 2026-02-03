@@ -1,0 +1,108 @@
+[
+  {
+    "id": "owasp-a02-default-credentials",
+    "info": {
+      "name": "OWASP A02 - Default Credentials Detection",
+      "severity": "high",
+      "category": "misconfiguration",
+      "description": "Tests for default admin credentials (OWASP A02:2025 - Security Misconfiguration)",
+      "references": [
+        "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+      ],
+      "tags": [
+        "owasp-a02",
+        "misconfiguration",
+        "default-credentials"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "username=admin&password=admin",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "username=administrator&password=administrator",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "username=root&password=root",
+        "encoding": "none",
+        "method": "POST"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "login successful",
+          "welcome",
+          "dashboard"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "owasp-a02-debug-endpoints",
+    "info": {
+      "name": "OWASP A02 - Debug Endpoints Exposed",
+      "severity": "medium",
+      "category": "misconfiguration",
+      "description": "Tests for exposed debug/admin endpoints (OWASP A02:2025)",
+      "references": [
+        "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+      ],
+      "tags": [
+        "owasp-a02",
+        "misconfiguration",
+        "information-disclosure"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "/.env",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/debug",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/admin/config",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/phpinfo.php",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/server-status",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "equals",
+        "patterns": ["200"]
+      },
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "APP_KEY=",
+          "DB_PASSWORD=",
+          "phpinfo()",
+          "Apache Server Status"
+        ]
+      }
+    ]
+  }
+]

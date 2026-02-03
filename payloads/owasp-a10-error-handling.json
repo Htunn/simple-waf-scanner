@@ -1,0 +1,116 @@
+[
+  {
+    "id": "owasp-a10-stack-trace-disclosure",
+    "info": {
+      "name": "OWASP A10 - Stack Trace Disclosure",
+      "severity": "medium",
+      "category": "error-handling",
+      "description": "Triggers errors to expose stack traces (OWASP A10:2025 - Mishandling of Exceptional Conditions)",
+      "references": [
+        "https://owasp.org/Top10/2025/A10_2025-Mishandling_of_Exceptional_Conditions/"
+      ],
+      "tags": [
+        "owasp-a10",
+        "error-handling",
+        "information-disclosure"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "null",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "undefined",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "999999999999999999999",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "-1",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "[]",
+        "encoding": "none",
+        "method": "POST"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "Traceback",
+          "Exception",
+          "Error at line",
+          "Stack trace:",
+          "java.lang.",
+          "System.Exception",
+          "Fatal error"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "owasp-a10-database-errors",
+    "info": {
+      "name": "OWASP A10 - Database Error Disclosure",
+      "severity": "medium",
+      "category": "information-disclosure",
+      "description": "Triggers database errors for information disclosure (OWASP A10:2025)",
+      "references": [
+        "https://owasp.org/Top10/2025/A10_2025-Mishandling_of_Exceptional_Conditions/"
+      ],
+      "tags": [
+        "owasp-a10",
+        "error-handling",
+        "database",
+        "information-disclosure"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "'",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "\"",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "1'1",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "1;SELECT * FROM users--",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "SQL syntax",
+          "mysql_fetch",
+          "PostgreSQL",
+          "ORA-",
+          "Microsoft SQL Server",
+          "SQLite3::",
+          "MongoDB"
+        ]
+      }
+    ]
+  }
+]

@@ -163,9 +163,10 @@ impl Scanner {
                                     );
 
                                     Some(Finding {
-                                        payload_id,
+                                        payload_id: payload_id.clone(),
                                         severity,
-                                        category,
+                                        category: category.clone(),
+                                        owasp_category: crate::types::OwaspCategory::from_attack_type(&category),
                                         payload_value: transformed_payload,
                                         technique_used: if technique_name == "Original" {
                                             None

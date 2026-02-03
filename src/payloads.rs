@@ -71,6 +71,13 @@ impl PayloadManager {
         const XXE: &str = include_str!("../payloads/xxe.json");
         const NOSQL: &str = include_str!("../payloads/nosql-injection.json");
         const SSTI: &str = include_str!("../payloads/ssti.json");
+        
+        // OWASP Top 10:2025 aligned payloads
+        const OWASP_A01: &str = include_str!("../payloads/owasp-a01-broken-access-control.json");
+        const OWASP_A02: &str = include_str!("../payloads/owasp-a02-security-misconfiguration.json");
+        const OWASP_A05: &str = include_str!("../payloads/owasp-a05-injection-advanced.json");
+        const OWASP_A07: &str = include_str!("../payloads/owasp-a07-authentication-bypass.json");
+        const OWASP_A10: &str = include_str!("../payloads/owasp-a10-error-handling.json");
 
         let mut all_payloads = Vec::new();
 
@@ -86,6 +93,12 @@ impl PayloadManager {
             ("xxe", XXE),
             ("nosql-injection", NOSQL),
             ("ssti", SSTI),
+            // OWASP Top 10:2025
+            ("owasp-a01-broken-access-control", OWASP_A01),
+            ("owasp-a02-security-misconfiguration", OWASP_A02),
+            ("owasp-a05-injection-advanced", OWASP_A05),
+            ("owasp-a07-authentication-bypass", OWASP_A07),
+            ("owasp-a10-error-handling", OWASP_A10),
         ] {
             match serde_json::from_str::<Vec<Payload>>(content) {
                 Ok(mut payloads) => all_payloads.append(&mut payloads),

