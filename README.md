@@ -51,7 +51,7 @@ A powerful Web Application Firewall (WAF) detection and bypass testing tool writ
 - Unicode normalization
 - Path traversal variants
 
-✅ **Comprehensive Payloads** - 280+ sophisticated attack payloads across 15 categories:
+✅ **Comprehensive Payloads** - 300+ sophisticated attack payloads across 16 categories:
 - **XSS (Cross-Site Scripting)** - 30+ payloads including polyglots, DOM-based, filter evasion, mutation XSS
 - **SQL Injection** - 20+ payloads with time-based blind, boolean-based, WAF-specific bypasses
 - **Remote Code Execution (RCE)** - 35+ payloads including shellshock, SSTI, expression language injection
@@ -62,6 +62,7 @@ A powerful Web Application Firewall (WAF) detection and bypass testing tool writ
 - **XML External Entity (XXE)** - 12+ payloads for file disclosure and SSRF
 - **NoSQL Injection** - 24+ MongoDB-specific payloads including regex and operator injection
 - **Server-Side Template Injection (SSTI)** - 30+ payloads for Jinja2, Freemarker, Thymeleaf, etc.
+- **HTTP/2 & AD FS** - CVE-2023-44487 (Rapid Reset), AD FS auth bypass, token replay, MFA bypass
 - **OWASP A01** - Broken Access Control bypass techniques
 - **OWASP A02** - Security Misconfiguration detection
 - **OWASP A05** - Advanced Injection WAF bypasses

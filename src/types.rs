@@ -90,6 +90,8 @@ impl OwaspCategory {
             "misconfiguration" | "default-credentials" => Some(Self::A02SecurityMisconfiguration),
             "crypto" | "encryption" | "weak-crypto" => Some(Self::A04CryptographicFailures),
             "error-handling" | "information-disclosure" => Some(Self::A10MishandlingOfExceptionalConditions),
+            "http2-bypass" | "http2" => Some(Self::A02SecurityMisconfiguration),
+            "adfs" | "windows-auth" => Some(Self::A07AuthenticationFailures),
             _ => None,
         }
     }

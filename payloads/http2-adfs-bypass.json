@@ -1,0 +1,319 @@
+[
+  {
+    "id": "http2-rapid-reset-cve-2023-44487",
+    "info": {
+      "name": "HTTP/2 Rapid Reset Detection (CVE-2023-44487)",
+      "severity": "critical",
+      "category": "http2-bypass",
+      "description": "Tests for HTTP/2 Rapid Reset vulnerability affecting IIS, AD FS, and other HTTP/2 servers",
+      "references": [
+        "https://nvd.nist.gov/vuln/detail/CVE-2023-44487",
+        "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-44487"
+      ],
+      "tags": [
+        "http2",
+        "ddos",
+        "cve-2023-44487",
+        "iis",
+        "adfs"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "RST_STREAM",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "not_equals",
+        "patterns": ["429", "503"]
+      }
+    ]
+  },
+  {
+    "id": "adfs-auth-bypass-cve-2025-21193",
+    "info": {
+      "name": "AD FS Authentication Bypass (CVE-2025-21193)",
+      "severity": "critical",
+      "category": "auth-bypass",
+      "description": "Tests for Windows Server 2016 AD FS authentication bypass vulnerability",
+      "references": [
+        "https://nvd.nist.gov/vuln/detail/CVE-2025-21193",
+        "https://owasp.org/Top10/2025/A07_2025-Authentication_Failures/"
+      ],
+      "tags": [
+        "adfs",
+        "auth-bypass",
+        "cve-2025-21193",
+        "windows-server",
+        "owasp-a07"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "/adfs/ls/?wa=wsignin1.0&wtrealm=urn:federation:MicrosoftOnline&wctx=",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/adfs/ls/wia?client-request-id=bypass",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/adfs/services/trust/2005/windowstransport",
+        "encoding": "none",
+        "method": "POST"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "equals",
+        "patterns": ["200", "302"]
+      },
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "Sign in",
+          "authentication",
+          "SecurityTokenService"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "adfs-token-replay-cve-2023-35348",
+    "info": {
+      "name": "AD FS Token Replay (CVE-2023-35348)",
+      "severity": "high",
+      "category": "authentication",
+      "description": "Tests for AD FS security token replay vulnerability",
+      "references": [
+        "https://nvd.nist.gov/vuln/detail/CVE-2023-35348",
+        "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-35348"
+      ],
+      "tags": [
+        "adfs",
+        "token-replay",
+        "cve-2023-35348",
+        "jwt",
+        "saml"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "/adfs/ls/?wa=wsignin1.0",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "nonce=replayed_nonce_12345",
+        "encoding": "none",
+        "method": "POST"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "equals",
+        "patterns": ["200"]
+      }
+    ]
+  },
+  {
+    "id": "adfs-extranet-lockout-bypass-cve-2019-1126",
+    "info": {
+      "name": "AD FS Extranet Lockout Bypass (CVE-2019-1126)",
+      "severity": "high",
+      "category": "auth-bypass",
+      "description": "Tests for AD FS extranet lockout policy bypass allowing password brute-force",
+      "references": [
+        "https://nvd.nist.gov/vuln/detail/CVE-2019-1126",
+        "https://owasp.org/Top10/2025/A07_2025-Authentication_Failures/"
+      ],
+      "tags": [
+        "adfs",
+        "extranet-lockout",
+        "cve-2019-1126",
+        "brute-force",
+        "owasp-a07"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "/adfs/ls/?username=admin&password=wrong1",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "/adfs/ls/?username=admin&password=wrong2",
+        "encoding": "none",
+        "method": "POST"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "not_equals",
+        "patterns": ["423", "429"]
+      }
+    ]
+  },
+  {
+    "id": "adfs-ssrf-cve-2018-16794",
+    "info": {
+      "name": "AD FS SSRF via txtBoxEmail (CVE-2018-16794)",
+      "severity": "high",
+      "category": "ssrf",
+      "description": "Server-Side Request Forgery in AD FS 4.0 via txtBoxEmail parameter",
+      "references": [
+        "https://nvd.nist.gov/vuln/detail/CVE-2018-16794",
+        "https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/"
+      ],
+      "tags": [
+        "adfs",
+        "ssrf",
+        "cve-2018-16794",
+        "windows-server-2016",
+        "owasp-a01"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "/adfs/portal/updatepassword/?txtBoxEmail=http://169.254.169.254/latest/meta-data/",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "/adfs/portal/updatepassword/?txtBoxEmail=http://localhost:8080/admin",
+        "encoding": "none",
+        "method": "POST"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "ami-id",
+          "localhost"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "adfs-mfa-bypass-cve-2018-8340",
+    "info": {
+      "name": "AD FS MFA Bypass (CVE-2018-8340)",
+      "severity": "critical",
+      "category": "auth-bypass",
+      "description": "Security feature bypass in multi-factor authentication requests",
+      "references": [
+        "https://nvd.nist.gov/vuln/detail/CVE-2018-8340",
+        "https://owasp.org/Top10/2025/A07_2025-Authentication_Failures/"
+      ],
+      "tags": [
+        "adfs",
+        "mfa-bypass",
+        "cve-2018-8340",
+        "2fa",
+        "owasp-a07"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "/adfs/ls/?mfa_required=false",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/adfs/ls/wia?mfa_required=0",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "equals",
+        "patterns": ["200", "302"]
+      }
+    ]
+  },
+  {
+    "id": "http2-smuggling-upgrade",
+    "info": {
+      "name": "HTTP/2 Smuggling via Upgrade Header",
+      "severity": "high",
+      "category": "http2-bypass",
+      "description": "Tests HTTP/2 request smuggling through protocol upgrade manipulation",
+      "references": [
+        "https://portswigger.net/web-security/request-smuggling",
+        "https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/"
+      ],
+      "tags": [
+        "http2",
+        "smuggling",
+        "upgrade",
+        "iis",
+        "owasp-a01"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "Connection: Upgrade",
+        "encoding": "none",
+        "method": "OPTIONS"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "equals",
+        "patterns": ["101", "200"]
+      }
+    ]
+  },
+  {
+    "id": "iis-http2-header-manipulation",
+    "info": {
+      "name": "IIS HTTP/2 Header Manipulation",
+      "severity": "medium",
+      "category": "http2-bypass",
+      "description": "Tests for IIS HTTP/2 header processing vulnerabilities",
+      "references": [
+        "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+      ],
+      "tags": [
+        "http2",
+        "iis",
+        "header-manipulation",
+        "owasp-a02"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "X-HTTP-Method-Override: DELETE",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "X-Original-URL: /admin",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "equals",
+        "patterns": ["200"]
+      }
+    ]
+  }
+]

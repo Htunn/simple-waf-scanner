@@ -78,6 +78,9 @@ impl PayloadManager {
         const OWASP_A05: &str = include_str!("../payloads/owasp-a05-injection-advanced.json");
         const OWASP_A07: &str = include_str!("../payloads/owasp-a07-authentication-bypass.json");
         const OWASP_A10: &str = include_str!("../payloads/owasp-a10-error-handling.json");
+        
+        // HTTP/2 and AD FS bypass payloads
+        const HTTP2_ADFS: &str = include_str!("../payloads/http2-adfs-bypass.json");
 
         let mut all_payloads = Vec::new();
 
@@ -99,6 +102,7 @@ impl PayloadManager {
             ("owasp-a05-injection-advanced", OWASP_A05),
             ("owasp-a07-authentication-bypass", OWASP_A07),
             ("owasp-a10-error-handling", OWASP_A10),
+            ("http2-adfs-bypass", HTTP2_ADFS),
         ] {
             match serde_json::from_str::<Vec<Payload>>(content) {
                 Ok(mut payloads) => all_payloads.append(&mut payloads),
