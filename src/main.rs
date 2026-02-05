@@ -180,7 +180,11 @@ fn print_pretty_output(results: &ScanResults, verbose: bool) {
     eprintln!("{} {}", "Timestamp:".bold(), results.timestamp);
 
     if let Some(ref waf) = results.waf_detected {
-        eprintln!("{} {}", "WAF Detected:".bold(), waf.red().bold());
+        if waf.contains("No WAF") {
+            eprintln!("{} {} {}", "WAF Detected:".bold(), "None".green(), format!("({})", waf).dimmed());
+        } else {
+            eprintln!("{} {}", "WAF Detected:".bold(), waf.red().bold());
+        }
     } else {
         eprintln!("{} {}", "WAF Detected:".bold(), "None".green());
     }
@@ -213,8 +217,8 @@ fn print_pretty_output(results: &ScanResults, verbose: bool) {
                 .to_string();
 
             let category_str = finding.category.green().to_string();
-            let payload_str = if finding.payload_value.len() > 50 {
-                format!("{}...", &finding.payload_value[..47])
+            let payload_str = if finding.payload_value.chars().count() > 50 {
+                finding.payload_value.chars().take(47).collect::<String>() + "..."
             } else {
                 finding.payload_value.clone()
             };
@@ -236,6 +240,85 @@ fn print_pretty_output(results: &ScanResults, verbose: bool) {
                     technique_str,
                     status_str,
                 ]);
+
+                // Print extracted data if available
+                if let Some(ref extracted) = finding.extracted_data {
+                    eprintln!("\n{}", "  Extracted Data:".yellow().bold());
+                    
+                    // Information disclosure
+                    for disclosure in &extracted.info_disclosure {
+                        eprintln!("    {} {}: {}", 
+                            "➤".red(),
+                            disclosure.disclosure_type.bold(),
+                            disclosure.value.trim()
+                        );
+                    }
+                    
+                    // Exposed paths
+                    if !extracted.exposed_paths.is_empty() {
+                        eprintln!("    {} {}: {}", 
+                            "➤".yellow(),
+                            "Exposed Paths".bold(),
+                            extracted.exposed_paths.join(", ")
+                        );
+                    }
+                    
+                    // Auth tokens
+                    if !extracted.auth_tokens.is_empty() {
+                        eprintln!("    {} {}: {} tokens found", 
+                            "➤".cyan(),
+                            "Auth Tokens".bold(),
+                            extracted.auth_tokens.len()
+                        );
+                        for token in &extracted.auth_tokens {
+                            eprintln!("       - {}: {}", token.token_type, token.name);
+                        }
+                    }
+                    
+                    // Version info
+                    if let Some(ref version) = extracted.version_info {
+                        if let Some(ref server) = version.server {
+                            eprintln!("    {} {}: {}", "➤".blue(), "Server".bold(), server);
+                        }
+                        if let Some(ref framework) = version.framework {
+                            eprintln!("    {} {}: {}", "➤".blue(), "Framework".bold(), framework);
+                        }
+                    }
+                    
+                    // Internal IPs
+                    if !extracted.internal_ips.is_empty() {
+                        eprintln!("    {} {}: {}", 
+                            "➤".magenta(),
+                            "Internal IPs".bold(),
+                            extracted.internal_ips.join(", ")
+                        );
+                    }
+                    
+                    // ADFS metadata
+                    if let Some(ref adfs) = extracted.adfs_metadata {
+                        eprintln!("    {} {}", "➤".green(), "ADFS Metadata:".bold());
+                        if let Some(ref id) = adfs.service_identifier {
+                            eprintln!("       - Service ID: {}", id);
+                        }
+                        if !adfs.endpoints.is_empty() {
+                            eprintln!("       - Endpoints: {}", adfs.endpoints.len());
+                        }
+                        if !adfs.claims.is_empty() {
+                            eprintln!("       - Claims: {}", adfs.claims.join(", "));
+                        }
+                    }
+                    
+                    // Response snippet
+                    if let Some(ref snippet) = extracted.response_snippet {
+                        eprintln!("    {} {}: {}", 
+                            "➤".white(),
+                            "Response Preview".bold(),
+                            snippet
+                        );
+                    }
+                    
+                    eprintln!();
+                }
             } else {
                 table.add_row(vec![severity_str, category_str, payload_str, status_str]);
             }

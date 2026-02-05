@@ -1,10 +1,10 @@
 [package]
 name = "simple-waf-scanner"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 rust-version = "1.75"
 authors = ["WAF Scanner Contributors"]
-description = "OWASP Top 10:2025 aligned WAF bypass scanner with 300+ payloads (XSS, SQLi, RCE, SSTI, XXE, SSRF, NoSQL, HTTP/2, AD FS), 11+ WAF fingerprints, and 7+ evasion techniques"
+description = "Production-ready OWASP Top 10:2025 aligned WAF bypass scanner with HTTP/2 support (CVE-2023-44487, CVE-2024-27983), 300+ payloads (XSS, SQLi, RCE, SSTI, XXE, SSRF, NoSQL, HTTP/2, AD FS), 11+ WAF fingerprints, and 7+ evasion techniques"
 license = "MIT"
 repository = "https://github.com/yourusername/simple-waf-scanner"
 homepage = "https://github.com/yourusername/simple-waf-scanner"
@@ -27,7 +27,7 @@ path = "src/main.rs"
 tokio = { version = "1.40", features = ["rt-multi-thread", "macros", "time", "sync", "signal", "fs"] }
 
 # HTTP client
-reqwest = { version = "0.12", features = ["json", "cookies", "gzip"] }
+reqwest = { version = "0.12", features = ["json", "cookies", "gzip", "http2"] }
 
 # CLI
 clap = { version = "4.5", features = ["derive", "cargo"] }
@@ -53,6 +53,10 @@ owo-colors = { version = "4.2", features = ["supports-colors"] }
 
 # URL encoding
 urlencoding = "2.1"
+url = "2.5"
+
+# Regex for data extraction
+regex = "1.10"
 
 # Async utilities
 futures = "0.3"

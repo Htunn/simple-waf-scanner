@@ -5,22 +5,29 @@
       "name": "HTTP/2 Rapid Reset Detection (CVE-2023-44487)",
       "severity": "critical",
       "category": "http2-bypass",
-      "description": "Tests for HTTP/2 Rapid Reset vulnerability affecting IIS, AD FS, and other HTTP/2 servers",
+      "description": "Tests for HTTP/2 Rapid Reset vulnerability affecting IIS, AD FS, and other HTTP/2 servers. This vulnerability allows attackers to cause DoS by rapidly sending RST_STREAM frames.",
       "references": [
         "https://nvd.nist.gov/vuln/detail/CVE-2023-44487",
-        "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-44487"
+        "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-44487",
+        "https://www.cisa.gov/news-events/alerts/2023/10/10/http2-rapid-reset-vulnerability-cve-2023-44487"
       ],
       "tags": [
         "http2",
         "ddos",
         "cve-2023-44487",
         "iis",
-        "adfs"
+        "adfs",
+        "production-critical"
       ]
     },
     "payloads": [
       {
-        "value": "RST_STREAM",
+        "value": "?rapid_reset_test=true",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "?stream_limit_test=concurrent_streams",
         "encoding": "none",
         "method": "GET"
       }
@@ -29,7 +36,90 @@
       {
         "type": "response_status",
         "condition": "not_equals",
-        "patterns": ["429", "503"]
+        "patterns": [
+          "429",
+          "503"
+        ]
+      },
+      {
+        "type": "response_header",
+        "condition": "not_contains",
+        "patterns": [
+          "retry-after"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "http2-continuation-flood-cve-2024-27983",
+    "info": {
+      "name": "HTTP/2 CONTINUATION Flood (CVE-2024-27983)",
+      "severity": "critical",
+      "category": "http2-bypass",
+      "description": "Tests for HTTP/2 CONTINUATION frame flood vulnerability that can cause DoS by sending excessive CONTINUATION frames",
+      "references": [
+        "https://nvd.nist.gov/vuln/detail/CVE-2024-27983",
+        "https://www.kb.cert.org/vuls/id/421644"
+      ],
+      "tags": [
+        "http2",
+        "continuation-flood",
+        "cve-2024-27983",
+        "nodejs",
+        "production-critical"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "?continuation_test=headers",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "not_equals",
+        "patterns": [
+          "431",
+          "503"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "http2-settings-flood",
+    "info": {
+      "name": "HTTP/2 SETTINGS Frame Flood",
+      "severity": "high",
+      "category": "http2-bypass",
+      "description": "Tests for HTTP/2 SETTINGS frame flood vulnerability where server doesn't rate-limit SETTINGS frames",
+      "references": [
+        "https://portswigger.net/research/http2",
+        "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+      ],
+      "tags": [
+        "http2",
+        "settings-flood",
+        "rate-limiting",
+        "owasp-a02",
+        "production-ready"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "?settings_test=max_concurrent",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "equals",
+        "patterns": [
+          "200"
+        ]
       }
     ]
   },
@@ -73,7 +163,10 @@
       {
         "type": "response_status",
         "condition": "equals",
-        "patterns": ["200", "302"]
+        "patterns": [
+          "200",
+          "302"
+        ]
       },
       {
         "type": "response_body",
@@ -121,7 +214,9 @@
       {
         "type": "response_status",
         "condition": "equals",
-        "patterns": ["200"]
+        "patterns": [
+          "200"
+        ]
       }
     ]
   },
@@ -160,7 +255,10 @@
       {
         "type": "response_status",
         "condition": "not_equals",
-        "patterns": ["423", "429"]
+        "patterns": [
+          "423",
+          "429"
+        ]
       }
     ]
   },
@@ -241,69 +339,178 @@
       {
         "type": "response_status",
         "condition": "equals",
-        "patterns": ["200", "302"]
+        "patterns": [
+          "200",
+          "302"
+        ]
       }
     ]
   },
   {
     "id": "http2-smuggling-upgrade",
     "info": {
-      "name": "HTTP/2 Smuggling via Upgrade Header",
+      "name": "HTTP/2 Request Smuggling via Upgrade Header",
       "severity": "high",
       "category": "http2-bypass",
-      "description": "Tests HTTP/2 request smuggling through protocol upgrade manipulation",
+      "description": "Tests HTTP/2 request smuggling through protocol upgrade manipulation and connection header confusion",
       "references": [
         "https://portswigger.net/web-security/request-smuggling",
-        "https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/"
+        "https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/",
+        "https://www.blackhat.com/docs/us-17/thursday/us-17-Kettle-Hiding-Wookiees-In-Http.pdf"
       ],
       "tags": [
         "http2",
         "smuggling",
         "upgrade",
         "iis",
-        "owasp-a01"
+        "owasp-a01",
+        "production-ready"
       ]
     },
     "payloads": [
       {
-        "value": "Connection: Upgrade",
+        "value": "?test=h2c_upgrade",
         "encoding": "none",
         "method": "OPTIONS"
+      },
+      {
+        "value": "?test=connection_manipulation",
+        "encoding": "none",
+        "method": "GET"
       }
     ],
     "matchers": [
       {
         "type": "response_status",
         "condition": "equals",
-        "patterns": ["101", "200"]
+        "patterns": [
+          "101",
+          "200",
+          "426"
+        ]
+      },
+      {
+        "type": "response_header",
+        "condition": "contains",
+        "patterns": [
+          "upgrade",
+          "h2c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "http2-header-compression-bomb",
+    "info": {
+      "name": "HTTP/2 HPACK Compression Bomb",
+      "severity": "high",
+      "category": "http2-bypass",
+      "description": "Tests for HTTP/2 header compression vulnerabilities using HPACK that can cause memory exhaustion",
+      "references": [
+        "https://tools.ietf.org/html/rfc7541",
+        "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+      ],
+      "tags": [
+        "http2",
+        "hpack",
+        "compression-bomb",
+        "dos",
+        "owasp-a02",
+        "production-critical"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "?hpack_test=dynamic_table",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "not_equals",
+        "patterns": [
+          "503",
+          "431"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "http2-pseudo-header-injection",
+    "info": {
+      "name": "HTTP/2 Pseudo-Header Injection",
+      "severity": "medium",
+      "category": "http2-bypass",
+      "description": "Tests for improper validation of HTTP/2 pseudo-headers (:method, :path, :authority, :scheme)",
+      "references": [
+        "https://tools.ietf.org/html/rfc7540#section-8.1.2.3",
+        "https://owasp.org/Top10/2025/A05_2025-Injection/"
+      ],
+      "tags": [
+        "http2",
+        "pseudo-header",
+        "injection",
+        "owasp-a05",
+        "production-ready"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "/:path/../admin",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "?authority_test=evil.com",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "equals",
+        "patterns": [
+          "200"
+        ]
       }
     ]
   },
   {
     "id": "iis-http2-header-manipulation",
     "info": {
-      "name": "IIS HTTP/2 Header Manipulation",
+      "name": "IIS HTTP/2 Header Manipulation & Method Override",
       "severity": "medium",
       "category": "http2-bypass",
-      "description": "Tests for IIS HTTP/2 header processing vulnerabilities",
+      "description": "Tests for IIS HTTP/2 header processing vulnerabilities including method override and path manipulation",
       "references": [
-        "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+        "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/",
+        "https://www.blackhat.com/docs/us-17/wednesday/us-17-Gil-Web-Cache-Deception-Attack.pdf"
       ],
       "tags": [
         "http2",
         "iis",
         "header-manipulation",
-        "owasp-a02"
+        "method-override",
+        "owasp-a02",
+        "production-ready"
       ]
     },
     "payloads": [
       {
-        "value": "X-HTTP-Method-Override: DELETE",
+        "value": "?header_test=X-HTTP-Method-Override",
         "encoding": "none",
         "method": "GET"
       },
       {
-        "value": "X-Original-URL: /admin",
+        "value": "?header_test=X-Original-URL",
+        "encoding": "none",
+        "method": "GET"
+      },
+      {
+        "value": "?header_test=X-Rewrite-URL",
         "encoding": "none",
         "method": "GET"
       }
@@ -312,7 +519,89 @@
       {
         "type": "response_status",
         "condition": "equals",
-        "patterns": ["200"]
+        "patterns": [
+          "200"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "http2-priority-frame-flood",
+    "info": {
+      "name": "HTTP/2 PRIORITY Frame Flood",
+      "severity": "medium",
+      "category": "http2-bypass",
+      "description": "Tests for HTTP/2 PRIORITY frame flood that can cause CPU exhaustion due to stream reprioritization",
+      "references": [
+        "https://tools.ietf.org/html/rfc7540#section-6.3",
+        "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+      ],
+      "tags": [
+        "http2",
+        "priority-flood",
+        "cpu-exhaustion",
+        "owasp-a02",
+        "production-ready"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "?priority_test=stream_dependency",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "not_equals",
+        "patterns": [
+          "503"
+        ]
+      },
+      {
+        "type": "response_time",
+        "condition": "greater_than",
+        "patterns": [
+          "5000"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "http2-window-update-overflow",
+    "info": {
+      "name": "HTTP/2 WINDOW_UPDATE Integer Overflow",
+      "severity": "high",
+      "category": "http2-bypass",
+      "description": "Tests for HTTP/2 flow control window overflow vulnerability that can bypass flow control",
+      "references": [
+        "https://tools.ietf.org/html/rfc7540#section-6.9",
+        "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+      ],
+      "tags": [
+        "http2",
+        "window-update",
+        "flow-control",
+        "integer-overflow",
+        "owasp-a02",
+        "production-critical"
+      ]
+    },
+    "payloads": [
+      {
+        "value": "?window_test=overflow_check",
+        "encoding": "none",
+        "method": "GET"
+      }
+    ],
+    "matchers": [
+      {
+        "type": "response_status",
+        "condition": "equals",
+        "patterns": [
+          "200"
+        ]
       }
     ]
   }

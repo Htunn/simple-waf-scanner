@@ -174,6 +174,128 @@ pub struct Finding {
     pub response_status: u16,
     /// Description of the finding
     pub description: String,
+    /// HTTP version used (HTTP/1.1, HTTP/2, etc.)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub http_version: Option<String>,
+    /// Extracted sensitive data from response
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub extracted_data: Option<ExtractedData>,
+}
+
+/// Sensitive data extracted from responses
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExtractedData {
+    /// Information disclosure findings
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub info_disclosure: Vec<InfoDisclosure>,
+    /// Exposed paths and directories
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub exposed_paths: Vec<String>,
+    /// Authentication tokens found
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub auth_tokens: Vec<AuthToken>,
+    /// Server/application version info
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version_info: Option<VersionInfo>,
+    /// Internal IP addresses exposed
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub internal_ips: Vec<String>,
+    /// ADFS-specific metadata
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub adfs_metadata: Option<AdfsMetadata>,
+    /// Response body snippet (first 500 chars)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub response_snippet: Option<String>,
+}
+
+/// Information disclosure types
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InfoDisclosure {
+    /// Type of disclosure
+    pub disclosure_type: String,
+    /// The actual disclosed information
+    pub value: String,
+    /// Severity of this specific disclosure
+    pub severity: Severity,
+}
+
+/// Authentication token information
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AuthToken {
+    /// Token type (cookie, JWT, bearer, etc.)
+    pub token_type: String,
+    /// Token name/key
+    pub name: String,
+    /// Token value (potentially redacted)
+    pub value: String,
+    /// Additional attributes
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub attributes: Option<String>,
+}
+
+/// Version information
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VersionInfo {
+    /// Server software and version
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub server: Option<String>,
+    /// Framework/platform version
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub framework: Option<String>,
+    /// Additional version details
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub details: Vec<String>,
+}
+
+/// ADFS-specific metadata
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AdfsMetadata {
+    /// Federation service identifier
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub service_identifier: Option<String>,
+    /// Exposed endpoints
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub endpoints: Vec<String>,
+    /// Certificate information
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub certificates: Vec<String>,
+    /// Claim types exposed
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub claims: Vec<String>,
+    /// Relying party trusts
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub relying_parties: Vec<String>,
+}
+
+impl ExtractedData {
+    /// Create a new empty extracted data instance
+    pub fn new() -> Self {
+        Self {
+            info_disclosure: Vec::new(),
+            exposed_paths: Vec::new(),
+            auth_tokens: Vec::new(),
+            version_info: None,
+            internal_ips: Vec::new(),
+            adfs_metadata: None,
+            response_snippet: None,
+        }
+    }
+
+    /// Check if any data was extracted
+    pub fn has_data(&self) -> bool {
+        !self.info_disclosure.is_empty()
+            || !self.exposed_paths.is_empty()
+            || !self.auth_tokens.is_empty()
+            || self.version_info.is_some()
+            || !self.internal_ips.is_empty()
+            || self.adfs_metadata.is_some()
+    }
+}
+
+impl Default for ExtractedData {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 /// Summary statistics from a scan

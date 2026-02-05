@@ -7,8 +7,7 @@
         "server": "cloudflare",
         "cf-ray": ".*",
         "cf-cache-status": ".*",
-        "cf-request-id": ".*",
-        "x-frame-options": ".*"
+        "cf-request-id": ".*"
       },
       "body_patterns": [
         "cloudflare",
@@ -16,7 +15,7 @@
         "Attention Required! | Cloudflare",
         "CF-RAY",
         "checking your browser",
-        "ray id",
+        "ray id:",
         "cloudflare-nginx"
       ],
       "status_codes": [
@@ -237,6 +236,18 @@
       "cookies": [
         "FORTIWAFSID"
       ]
+    }
+  },
+  {
+    "name": "Microsoft HTTPAPI (No WAF)",
+    "vendor": "Microsoft",
+    "detection": {
+      "headers": {
+        "server": "Microsoft-HTTPAPI"
+      },
+      "body_patterns": [],
+      "status_codes": [],
+      "cookies": []
     }
   }
 ]

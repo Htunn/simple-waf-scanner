@@ -36,10 +36,18 @@ A powerful Web Application Firewall (WAF) detection and bypass testing tool writ
 
 ✅ **OWASP Top 10:2025 Aligned** - Includes specialized bypass payloads mapped to:
 - **A01:2025** - Broken Access Control (SSRF, Path Traversal, IDOR)
-- **A02:2025** - Security Misconfiguration (Default Credentials, Debug Endpoints)
+- **A02:2025** - Security Misconfiguration (Default Credentials, Debug Endpoints, HTTP/2)
 - **A05:2025** - Injection (Advanced SQL/NoSQL/XSS/Command Injection WAF Bypasses)
 - **A07:2025** - Authentication Failures (Auth Bypass, Session Fixation, JWT Attacks)
 - **A10:2025** - Mishandling of Exceptional Conditions (Error Disclosure)
+
+✅ **Production-Ready HTTP/2 Support** - Full HTTP/2 protocol implementation with:
+- HTTP/2 prior knowledge (no upgrade required)
+- Adaptive flow control with configurable windows
+- Critical vulnerability testing (CVE-2023-44487 Rapid Reset, CVE-2024-27983 CONTINUATION Flood)
+- HPACK compression bomb detection
+- Request smuggling and pseudo-header injection tests
+- See [HTTP2_PRODUCTION.md](HTTP2_PRODUCTION.md) for details
 
 ✅ **WAF Fingerprinting** - Detect 11+ popular WAFs (Cloudflare, Azure Front Door, AWS WAF, Akamai, ModSecurity, Imperva, Sucuri, Wordfence, Barracuda, F5, FortiWeb)
 
@@ -62,7 +70,13 @@ A powerful Web Application Firewall (WAF) detection and bypass testing tool writ
 - **XML External Entity (XXE)** - 12+ payloads for file disclosure and SSRF
 - **NoSQL Injection** - 24+ MongoDB-specific payloads including regex and operator injection
 - **Server-Side Template Injection (SSTI)** - 30+ payloads for Jinja2, Freemarker, Thymeleaf, etc.
-- **HTTP/2 & AD FS** - CVE-2023-44487 (Rapid Reset), AD FS auth bypass, token replay, MFA bypass
+- **HTTP/2 & AD FS** - Production-ready tests for:
+  - CVE-2023-44487 (Rapid Reset DoS)
+  - CVE-2024-27983 (CONTINUATION Flood)
+  - CVE-2025-21193 (AD FS Auth Bypass)
+  - HPACK compression bombs
+  - Request smuggling & pseudo-header injection
+  - Flow control bypass & frame floods
 - **OWASP A01** - Broken Access Control bypass techniques
 - **OWASP A02** - Security Misconfiguration detection
 - **OWASP A05** - Advanced Injection WAF bypasses

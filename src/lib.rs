@@ -13,6 +13,7 @@
 pub mod config;
 pub mod error;
 pub mod evasion;
+pub mod extractor;
 pub mod fingerprints;
 pub mod http;
 pub mod payloads;

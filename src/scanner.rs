@@ -1,6 +1,7 @@
 use crate::{
     config::Config,
     evasion,
+    extractor::DataExtractor,
     fingerprints::{DetectionResponse, WafDetector},
     http::{build_client, send_request},
     payloads::PayloadManager,
@@ -18,6 +19,7 @@ pub struct Scanner {
     client: reqwest::Client,
     payload_manager: PayloadManager,
     waf_detector: WafDetector,
+    data_extractor: DataExtractor,
 }
 
 impl Scanner {
@@ -36,12 +38,14 @@ impl Scanner {
         };
 
         let waf_detector = WafDetector::new()?;
+        let data_extractor = DataExtractor::new();
 
         Ok(Self {
             config,
             client,
             payload_manager,
             waf_detector,
+            data_extractor,
         })
     }
 
@@ -98,7 +102,25 @@ impl Scanner {
     async fn detect_waf(&self) -> crate::error::Result<Option<String>> {
         tracing::debug!("Sending baseline request for WAF detection");
 
-        let response = send_request(&self.client, &self.config.target, None).await?;
+        let response = send_request(&self.client, &self.config.target, None)
+            .await
+            .map_err(|e| {
+                tracing::error!("Connection failed: {}", e);
+                e // Just pass through the reqwest::Error
+            })?;
+
+        // Log HTTP version information
+        tracing::info!(
+            "Target {} is using HTTP version: {}",
+            self.config.target,
+            response.http_version
+        );
+
+        if response.http_version.contains("HTTP/2") {
+            tracing::info!("✓ HTTP/2 protocol detected - production-ready configuration active");
+        } else {
+            tracing::warn!("⚠ HTTP/1.x detected - some HTTP/2 tests may not apply");
+        }
 
         let detection_response = DetectionResponse::new(
             response.status_code,
@@ -136,6 +158,7 @@ impl Scanner {
                     let category = payload.info.category.clone();
                     let description = payload.info.description.clone();
                     let matchers = payload.matchers.clone();
+                    let extractor = self.data_extractor.clone();
 
                     let task = tokio::spawn(async move {
                         let _permit = sem.acquire().await.unwrap();
@@ -157,9 +180,17 @@ impl Scanner {
 
                                 if matched {
                                     tracing::debug!(
-                                        "Payload {} matched with technique: {}",
+                                        "Payload {} matched with technique: {} (HTTP version: {})",
                                         payload_id,
-                                        technique_name
+                                        technique_name,
+                                        resp.http_version
+                                    );
+
+                                    // Extract sensitive data from response
+                                    let extracted_data = extractor.extract(
+                                        &resp.body,
+                                        &resp.headers,
+                                        &resp.cookies,
                                     );
 
                                     Some(Finding {
@@ -175,6 +206,12 @@ impl Scanner {
                                         },
                                         response_status: resp.status_code,
                                         description,
+                                        http_version: Some(resp.http_version),
+                                        extracted_data: if extracted_data.has_data() {
+                                            Some(extracted_data)
+                                        } else {
+                                            None
+                                        },
                                     })
                                 } else {
                                     None

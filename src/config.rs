@@ -41,6 +41,7 @@ impl Config {
 
     /// Validate the configuration
     pub fn validate(&self) -> crate::error::Result<()> {
+        // Check target URL
         if self.target.is_empty() {
             return Err(crate::error::ScanError::ConfigError(
                 "Target URL cannot be empty".to_string(),
@@ -53,10 +54,40 @@ impl Config {
             ));
         }
 
+        // Validate URL format
+        if let Err(e) = url::Url::parse(&self.target) {
+            return Err(crate::error::ScanError::ConfigError(
+                format!("Invalid URL format: {}", e),
+            ));
+        }
+
+        // Check concurrency bounds
         if self.concurrency == 0 {
             return Err(crate::error::ScanError::ConfigError(
                 "Concurrency must be greater than 0".to_string(),
             ));
+        }
+
+        if self.concurrency > 100 {
+            return Err(crate::error::ScanError::ConfigError(
+                "Concurrency cannot exceed 100 (too aggressive)".to_string(),
+            ));
+        }
+
+        // Check delay
+        if self.delay_ms > 10000 {
+            return Err(crate::error::ScanError::ConfigError(
+                "Delay cannot exceed 10 seconds".to_string(),
+            ));
+        }
+
+        // Validate payload file if provided
+        if let Some(ref path) = self.payload_file {
+            if !std::path::Path::new(path).exists() {
+                return Err(crate::error::ScanError::ConfigError(
+                    format!("Payload file not found: {}", path),
+                ));
+            }
         }
 
         Ok(())

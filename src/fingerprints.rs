@@ -48,74 +48,97 @@ impl WafDetector {
     }
 
     /// Detect WAF from an HTTP response
+    /// Returns the best matching WAF with highest confidence score
     pub fn detect(&self, response: &DetectionResponse) -> Option<String> {
+        let mut best_match: Option<(String, i32, usize)> = None; // (name, score, specificity)
+        
         for signature in &self.signatures {
-            if self.matches_signature(response, signature) {
-                tracing::info!("Detected WAF: {}", signature.name);
-                return Some(signature.name.clone());
+            let (score, specificity) = self.calculate_match_score(response, signature);
+            
+            if score >= 2 { // Minimum threshold for detection
+                match &mut best_match {
+                    None => {
+                        best_match = Some((signature.name.clone(), score, specificity));
+                    }
+                    Some((_, best_score, best_specificity)) => {
+                        // Prefer higher score, or higher specificity if scores are equal
+                        if score > *best_score || (score == *best_score && specificity > *best_specificity) {
+                            best_match = Some((signature.name.clone(), score, specificity));
+                        }
+                    }
+                }
             }
         }
-        None
+        
+        if let Some((name, score, _)) = best_match {
+            tracing::info!("Detected: {} (confidence score: {})", name, score);
+            Some(name)
+        } else {
+            tracing::debug!("No WAF detected");
+            None
+        }
     }
 
-    /// Check if response matches a signature
-    fn matches_signature(&self, response: &DetectionResponse, signature: &WafSignature) -> bool {
+    /// Calculate match score and specificity for a signature
+    /// Returns (score, specificity) where higher specificity means more unique/specific detection
+    fn calculate_match_score(&self, response: &DetectionResponse, signature: &WafSignature) -> (i32, usize) {
         let mut score = 0;
+        let mut header_matches = 0;
+        let total_criteria = signature.detection.headers.len() 
+            + signature.detection.body_patterns.len()
+            + signature.detection.status_codes.len()
+            + signature.detection.cookies.len();
 
-        // Check headers - any matching header increases score
-        if !signature.detection.headers.is_empty() {
-            for (header_name, pattern) in &signature.detection.headers {
-                if let Some(header_value) = response.headers.get(&header_name.to_lowercase()) {
-                    if pattern == ".*"
-                        || header_value
-                            .to_lowercase()
-                            .contains(&pattern.to_lowercase())
-                    {
-                        score += 2; // Headers are strong indicators, give more weight
-                        break;
-                    }
+        // Check headers - require specific header values for high confidence
+        for (header_name, pattern) in &signature.detection.headers {
+            if let Some(header_value) = response.headers.get(&header_name.to_lowercase()) {
+                // Exact match or pattern match
+                if pattern == ".*" {
+                    score += 1; // Generic header presence
+                    header_matches += 1;
+                } else if header_value.to_lowercase().contains(&pattern.to_lowercase()) {
+                    score += 3; // Specific header value match (stronger indicator)
+                    header_matches += 1;
                 }
             }
         }
 
         // Check body patterns
-        if !signature.detection.body_patterns.is_empty() {
-            for pattern in &signature.detection.body_patterns {
-                if response
-                    .body
-                    .to_lowercase()
-                    .contains(&pattern.to_lowercase())
-                {
-                    score += 1;
-                    break;
-                }
+        for pattern in &signature.detection.body_patterns {
+            if response.body.to_lowercase().contains(&pattern.to_lowercase()) {
+                score += 2; // Body patterns are good indicators
+                break; // Only count once
             }
         }
 
         // Check status codes
-        if !signature.detection.status_codes.is_empty() {
-            for status in &signature.detection.status_codes {
-                if *status == response.status_code {
-                    score += 1;
+        for status in &signature.detection.status_codes {
+            if *status == response.status_code {
+                score += 1; // Status codes are weak indicators alone
+                break;
+            }
+        }
+
+        // Check cookies
+        for cookie_pattern in &signature.detection.cookies {
+            for cookie in &response.cookies {
+                if cookie.contains(cookie_pattern) {
+                    score += 2; // Cookies are good indicators
                     break;
                 }
             }
         }
 
-        // Check cookies
-        if !signature.detection.cookies.is_empty() {
-            for cookie_pattern in &signature.detection.cookies {
-                for cookie in &response.cookies {
-                    if cookie.contains(cookie_pattern) {
-                        score += 1;
-                        break;
-                    }
-                }
-            }
-        }
+        // Specificity: number of criteria defined + matched headers
+        let specificity = total_criteria + header_matches;
+        
+        (score, specificity)
+    }
 
-        // Match if we have at least one strong indicator (header match = 2 points)
-        // OR at least 2 other matching criteria
+    /// Check if response matches a signature (legacy method for compatibility)
+    #[allow(dead_code)]
+    fn matches_signature(&self, response: &DetectionResponse, signature: &WafSignature) -> bool {
+        let (score, _) = self.calculate_match_score(response, signature);
         score >= 2
     }
 
