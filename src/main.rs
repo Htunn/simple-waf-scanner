@@ -26,9 +26,18 @@ struct Args {
     delay: u64,
 
     /// Comma-separated list of evasion techniques to use
-    /// Available: encoding, double-encode, case, null-bytes, comments, unicode, path-traversal
+    /// Available: encoding, double-encode, case, null-bytes, comments, unicode, path-traversal,
+    /// role-reversal, context-splitting, encoding-obfuscation, multilingual, delimiter-confusion, instruction-layering
     #[arg(long)]
     techniques: Option<String>,
+
+    /// Enable LLM-specific vulnerability testing (OWASP Top 10 for LLM Applications)
+    #[arg(long)]
+    llm_mode: bool,
+
+    /// Enable semantic analysis for LLM responses (experimental)
+    #[arg(long)]
+    semantic_analysis: bool,
 
     /// Show detailed information including which technique worked
     #[arg(long)]
@@ -61,6 +70,8 @@ async fn main() -> anyhow::Result<()> {
     config.delay_ms = args.delay;
     config.payload_file = args.payload_file;
     config.verbose = args.verbose;
+    config.llm_mode = args.llm_mode;
+    config.semantic_analysis = args.semantic_analysis;
 
     if let Some(techniques_str) = args.techniques {
         config.enabled_techniques = Some(

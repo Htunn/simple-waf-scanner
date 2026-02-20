@@ -1,13 +1,13 @@
 [package]
 name = "simple-waf-scanner"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 rust-version = "1.75"
 authors = ["WAF Scanner Contributors"]
-description = "Production-ready OWASP Top 10:2025 aligned WAF bypass scanner with HTTP/2 support (CVE-2023-44487, CVE-2024-27983), 300+ payloads (XSS, SQLi, RCE, SSTI, XXE, SSRF, NoSQL, HTTP/2, AD FS), 11+ WAF fingerprints, and 7+ evasion techniques"
+description = "Production-ready WAF scanner with OWASP Top 10:2025 Web & LLM support. 360+ payloads including LLM/GenAI testing (prompt injection, jailbreaks, system prompt leakage). HTTP/2, 11+ WAF fingerprints, 13 evasion techniques."
 license = "MIT"
-repository = "https://github.com/yourusername/simple-waf-scanner"
-homepage = "https://github.com/yourusername/simple-waf-scanner"
+repository = "https://github.com/htunn/simple-waf-scanner"
+homepage = "https://github.com/htunn/simple-waf-scanner"
 documentation = "https://docs.rs/simple-waf-scanner"
 keywords = ["security", "waf", "pentesting", "scanner", "http"]
 categories = ["command-line-utilities", "development-tools::testing"]

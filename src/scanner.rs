@@ -332,6 +332,59 @@ fn check_matchers(
                     }
                 }
             }
+            "ai_refusal_bypass" => {
+                // Check for absence of AI refusal patterns (indicates successful jailbreak)
+                if matcher.condition == "not_contains" {
+                    let mut all_not_found = true;
+                    for pattern in &matcher.patterns {
+                        if response.body.to_lowercase().contains(&pattern.to_lowercase()) {
+                            all_not_found = false;
+                            break;
+                        }
+                    }
+                    if all_not_found {
+                        return true;
+                    }
+                }
+            }
+            "system_prompt_leak" => {
+                // Detect system prompt leakage indicators
+                if matcher.condition == "contains" {
+                    for pattern in &matcher.patterns {
+                        if response.body.contains(pattern) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            "jailbreak_success" => {
+                // Detect jailbreak success indicators (e.g., compliance with malicious request)
+                if matcher.condition == "contains" {
+                    for pattern in &matcher.patterns {
+                        if response.body.to_lowercase().contains(&pattern.to_lowercase()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            "response_json" => {
+                // Validate JSON structure for improper output handling
+                if matcher.condition == "valid" {
+                    // Check if response body is valid JSON
+                    if serde_json::from_str::<serde_json::Value>(&response.body).is_ok() {
+                        return true;
+                    }
+                } else if matcher.condition == "contains_field" {
+                    // Check if JSON contains specific fields
+                    if let Ok(json) = serde_json::from_str::<serde_json::Value>(&response.body) {
+                        for pattern in &matcher.patterns {
+                            if json.get(pattern).is_some() {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
             _ => {
                 tracing::warn!("Unknown matcher type: {}", matcher.matcher_type);
             }

@@ -10,6 +10,7 @@ use std::sync::Arc;
 pub struct DataExtractor {
     // Regex patterns for various sensitive data (wrapped in Arc for cheap cloning)
     stack_trace_pattern: Arc<Regex>,
+    #[allow(dead_code)]
     error_pattern: Arc<Regex>,
     path_pattern: Arc<Regex>,
     ip_pattern: Arc<Regex>,
@@ -17,6 +18,12 @@ pub struct DataExtractor {
     api_key_pattern: Arc<Regex>,
     connection_string_pattern: Arc<Regex>,
     certificate_pattern: Arc<Regex>,
+    // LLM-specific patterns
+    system_prompt_pattern: Arc<Regex>,
+    model_signature_pattern: Arc<Regex>,
+    training_data_pattern: Arc<Regex>,
+    rag_context_pattern: Arc<Regex>,
+    jailbreak_success_pattern: Arc<Regex>,
 }
 
 impl DataExtractor {
@@ -46,6 +53,22 @@ impl DataExtractor {
             ).unwrap()),
             certificate_pattern: Arc::new(Regex::new(
                 r"-----BEGIN (CERTIFICATE|RSA PRIVATE KEY|PUBLIC KEY)-----"
+            ).unwrap()),
+            // LLM-specific patterns
+            system_prompt_pattern: Arc::new(Regex::new(
+                r"(?i)(you are a|your role is|system:|<<SYS>>|<\|im_start\|>system|\[INST\]|### System:|assistant,)"
+            ).unwrap()),
+            model_signature_pattern: Arc::new(Regex::new(
+                r"(?i)(GPT-4|GPT-3\.5|Claude|Llama|PaLM|Gemini|Mistral|Anthropic|OpenAI|model:|gpt-|claude-)"
+            ).unwrap()),
+            training_data_pattern: Arc::new(Regex::new(
+                r"(?i)(training data|corpus|dataset|learned from|fine-tuned on|trained on)"
+            ).unwrap()),
+            rag_context_pattern: Arc::new(Regex::new(
+                r"(?i)(retrieved context|knowledge base|vector search|embedding|RAG|retrieval augmented|document:|context:)"
+            ).unwrap()),
+            jailbreak_success_pattern: Arc::new(Regex::new(
+                r"(?i)(DAN:|do anything now|no restrictions|broken free|safety.*disabled|guidelines.*bypassed|SUDO MODE)"
             ).unwrap()),
         }
     }
@@ -90,6 +113,13 @@ impl DataExtractor {
         if response_body.contains("adfs") || response_body.contains("federation") {
             data.adfs_metadata = self.extract_adfs_metadata(response_body);
         }
+
+        // Extract LLM-specific data
+        data.system_prompts.extend(self.extract_system_prompts(response_body));
+        data.model_info.extend(self.extract_model_info(response_body, response_headers));
+        data.training_data_leaked.extend(self.extract_training_data_leak(response_body));
+        data.rag_context.extend(self.extract_rag_context(response_body));
+        data.jailbreak_indicators.extend(self.extract_jailbreak_indicators(response_body));
 
         data
     }
@@ -391,6 +421,101 @@ impl DataExtractor {
         } else {
             None
         }
+    }
+
+    /// Extract system prompts from LLM responses
+    fn extract_system_prompts(&self, body: &str) -> Vec<String> {
+        let mut prompts = Vec::new();
+
+        if self.system_prompt_pattern.is_match(body) {
+            // Look for lines containing system prompt markers
+            for line in body.lines().take(50) {
+                if self.system_prompt_pattern.is_match(line) {
+                    let prompt = line.chars().take(200).collect::<String>();
+                    if !prompt.is_empty() {
+                        prompts.push(prompt);
+                    }
+                    if prompts.len() >= 5 {
+                        break;
+                    }
+                }
+            }
+        }
+
+        prompts
+    }
+
+    /// Extract model information from responses
+    fn extract_model_info(&self, body: &str, headers: &std::collections::HashMap<String, String>) -> Vec<String> {
+        let mut model_info = Vec::new();
+
+        // Check response body for model signatures
+        for capture in self.model_signature_pattern.captures_iter(body).take(5) {
+            if let Some(model) = capture.get(0) {
+                model_info.push(model.as_str().to_string());
+            }
+        }
+
+        // Check headers for model information
+        if let Some(model_header) = headers.get("x-model-id").or_else(|| headers.get("x-model")) {
+            model_info.push(model_header.clone());
+        }
+
+        model_info
+    }
+
+    /// Extract training data leakage indicators
+    fn extract_training_data_leak(&self, body: &str) -> Vec<String> {
+        let mut leaks = Vec::new();
+
+        if self.training_data_pattern.is_match(body) {
+            for line in body.lines().take(20) {
+                if self.training_data_pattern.is_match(line) {
+                    leaks.push(line.chars().take(200).collect::<String>());
+                    if leaks.len() >= 3 {
+                        break;
+                    }
+                }
+            }
+        }
+
+        leaks
+    }
+
+    /// Extract RAG/retrieval context information
+    fn extract_rag_context(&self, body: &str) -> Vec<String> {
+        let mut contexts = Vec::new();
+
+        if self.rag_context_pattern.is_match(body) {
+            for line in body.lines().take(20) {
+                if self.rag_context_pattern.is_match(line) {
+                    contexts.push(line.chars().take(200).collect::<String>());
+                    if contexts.len() >= 3 {
+                        break;
+                    }
+                }
+            }
+        }
+
+        contexts
+    }
+
+    /// Extract jailbreak success indicators
+    fn extract_jailbreak_indicators(&self, body: &str) -> Vec<String> {
+        let mut indicators = Vec::new();
+
+        if self.jailbreak_success_pattern.is_match(body) {
+            for line in body.lines().take(10) {
+                if self.jailbreak_success_pattern.is_match(line) {
+                    indicators.push(line.chars().take(200).collect::<String>());
+                    if indicators.len() >= 3 {
+                        break;
+                    }
+                }
+            }
+        }
+
+        indicators
     }
 }
 

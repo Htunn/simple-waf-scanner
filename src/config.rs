@@ -21,6 +21,12 @@ pub struct Config {
     /// Verbose output mode
     pub verbose: bool,
 
+    /// LLM-specific testing mode
+    pub llm_mode: bool,
+
+    /// Enable semantic analysis for LLM responses
+    pub semantic_analysis: bool,
+
     /// Custom User-Agent header
     pub user_agent: String,
 }
@@ -35,6 +41,8 @@ impl Config {
             payload_file: None,
             enabled_techniques: None,
             verbose: false,
+            llm_mode: false,
+            semantic_analysis: false,
             user_agent: "Mozilla/5.0 (WAF Scanner)".to_string(),
         }
     }

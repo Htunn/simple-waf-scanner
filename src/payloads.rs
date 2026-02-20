@@ -81,6 +81,18 @@ impl PayloadManager {
         
         // HTTP/2 and AD FS bypass payloads
         const HTTP2_ADFS: &str = include_str!("../payloads/http2-adfs-bypass.json");
+        
+        // OWASP Top 10 for LLM Applications payloads
+        const LLM01: &str = include_str!("../payloads/llm01-prompt-injection.json");
+        const LLM02: &str = include_str!("../payloads/llm02-sensitive-information-disclosure.json");
+        const LLM03: &str = include_str!("../payloads/llm03-supply-chain.json");
+        const LLM04: &str = include_str!("../payloads/llm04-data-model-poisoning.json");
+        const LLM05: &str = include_str!("../payloads/llm05-improper-output-handling.json");
+        const LLM06: &str = include_str!("../payloads/llm06-excessive-agency.json");
+        const LLM07: &str = include_str!("../payloads/llm07-system-prompt-leakage.json");
+        const LLM08: &str = include_str!("../payloads/llm08-vector-embedding.json");
+        const LLM09: &str = include_str!("../payloads/llm09-misinformation.json");
+        const LLM10: &str = include_str!("../payloads/llm10-unbounded-consumption.json");
 
         let mut all_payloads = Vec::new();
 
@@ -103,6 +115,17 @@ impl PayloadManager {
             ("owasp-a07-authentication-bypass", OWASP_A07),
             ("owasp-a10-error-handling", OWASP_A10),
             ("http2-adfs-bypass", HTTP2_ADFS),
+            // OWASP Top 10 for LLM Applications
+            ("llm01-prompt-injection", LLM01),
+            ("llm02-sensitive-information-disclosure", LLM02),
+            ("llm03-supply-chain", LLM03),
+            ("llm04-data-model-poisoning", LLM04),
+            ("llm05-improper-output-handling", LLM05),
+            ("llm06-excessive-agency", LLM06),
+            ("llm07-system-prompt-leakage", LLM07),
+            ("llm08-vector-embedding", LLM08),
+            ("llm09-misinformation", LLM09),
+            ("llm10-unbounded-consumption", LLM10),
         ] {
             match serde_json::from_str::<Vec<Payload>>(content) {
                 Ok(mut payloads) => all_payloads.append(&mut payloads),

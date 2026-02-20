@@ -171,7 +171,7 @@ cargo install simple-waf-scanner
 ### From source
 
 ```bash
-git clone https://github.com/yourusername/simple-waf-scanner.git
+git clone https://github.com/htunn/simple-waf-scanner.git
 cd simple-waf-scanner
 cargo build --release
 ```

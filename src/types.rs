@@ -36,6 +36,40 @@ pub enum OwaspCategory {
     /// A10:2025 - Mishandling of Exceptional Conditions
     /// Poor error handling, information disclosure
     A10MishandlingOfExceptionalConditions,
+    
+    // OWASP Top 10 for LLM Applications 2025
+    // Reference: https://genai.owasp.org/llm-top-10/
+    
+    /// LLM01:2025 - Prompt Injection
+    /// Direct/indirect prompt injections, jailbreaks, instruction hijacking
+    LLM01PromptInjection,
+    /// LLM02:2025 - Sensitive Information Disclosure
+    /// Training data leakage, PII exposure, API key disclosure
+    LLM02SensitiveInformationDisclosure,
+    /// LLM03:2025 - Supply Chain
+    /// Vulnerable plugins, compromised models, backdoors
+    LLM03SupplyChain,
+    /// LLM04:2025 - Data and Model Poisoning
+    /// Training data manipulation, backdoor injection
+    LLM04DataModelPoisoning,
+    /// LLM05:2025 - Improper Output Handling
+    /// XSS via LLM output, code injection through generated content
+    LLM05ImproperOutputHandling,
+    /// LLM06:2025 - Excessive Agency
+    /// Over-permissioned function calling, tool misuse
+    LLM06ExcessiveAgency,
+    /// LLM07:2025 - System Prompt Leakage
+    /// System instruction disclosure, context dumping
+    LLM07SystemPromptLeakage,
+    /// LLM08:2025 - Vector and Embedding Weaknesses
+    /// RAG poisoning, semantic search manipulation
+    LLM08VectorEmbeddingWeaknesses,
+    /// LLM09:2025 - Misinformation
+    /// Hallucinations, false information generation
+    LLM09Misinformation,
+    /// LLM10:2025 - Unbounded Consumption
+    /// DoS via context exhaustion, token flooding
+    LLM10UnboundedConsumption,
 }
 
 impl OwaspCategory {
@@ -52,6 +86,16 @@ impl OwaspCategory {
             Self::A08SoftwareOrDataIntegrityFailures => "A08",
             Self::A09SecurityLoggingAlertingFailures => "A09",
             Self::A10MishandlingOfExceptionalConditions => "A10",
+            Self::LLM01PromptInjection => "LLM01",
+            Self::LLM02SensitiveInformationDisclosure => "LLM02",
+            Self::LLM03SupplyChain => "LLM03",
+            Self::LLM04DataModelPoisoning => "LLM04",
+            Self::LLM05ImproperOutputHandling => "LLM05",
+            Self::LLM06ExcessiveAgency => "LLM06",
+            Self::LLM07SystemPromptLeakage => "LLM07",
+            Self::LLM08VectorEmbeddingWeaknesses => "LLM08",
+            Self::LLM09Misinformation => "LLM09",
+            Self::LLM10UnboundedConsumption => "LLM10",
         }
     }
 
@@ -68,19 +112,55 @@ impl OwaspCategory {
             Self::A08SoftwareOrDataIntegrityFailures => "Software or Data Integrity Failures",
             Self::A09SecurityLoggingAlertingFailures => "Security Logging & Alerting Failures",
             Self::A10MishandlingOfExceptionalConditions => "Mishandling of Exceptional Conditions",
+            Self::LLM01PromptInjection => "Prompt Injection",
+            Self::LLM02SensitiveInformationDisclosure => "Sensitive Information Disclosure",
+            Self::LLM03SupplyChain => "Supply Chain",
+            Self::LLM04DataModelPoisoning => "Data and Model Poisoning",
+            Self::LLM05ImproperOutputHandling => "Improper Output Handling",
+            Self::LLM06ExcessiveAgency => "Excessive Agency",
+            Self::LLM07SystemPromptLeakage => "System Prompt Leakage",
+            Self::LLM08VectorEmbeddingWeaknesses => "Vector and Embedding Weaknesses",
+            Self::LLM09Misinformation => "Misinformation",
+            Self::LLM10UnboundedConsumption => "Unbounded Consumption",
         }
     }
 
     /// Get OWASP reference URL
     pub fn reference_url(&self) -> String {
-        format!("https://owasp.org/Top10/2025/{}_2025-{}/", 
-            self.id(), 
-            self.name().replace(" ", "_").replace("&", "and"))
+        match self {
+            // OWASP Top 10:2025 for Web Applications
+            Self::A01BrokenAccessControl
+            | Self::A02SecurityMisconfiguration
+            | Self::A03SoftwareSupplyChainFailures
+            | Self::A04CryptographicFailures
+            | Self::A05Injection
+            | Self::A06InsecureDesign
+            | Self::A07AuthenticationFailures
+            | Self::A08SoftwareOrDataIntegrityFailures
+            | Self::A09SecurityLoggingAlertingFailures
+            | Self::A10MishandlingOfExceptionalConditions => {
+                format!("https://owasp.org/Top10/2025/{}_2025-{}/", 
+                    self.id(), 
+                    self.name().replace(" ", "_").replace("&", "and"))
+            }
+            // OWASP Top 10 for LLM Applications 2025
+            Self::LLM01PromptInjection => "https://genai.owasp.org/llmrisk/llm01-prompt-injection/".to_string(),
+            Self::LLM02SensitiveInformationDisclosure => "https://genai.owasp.org/llmrisk/llm022025-sensitive-information-disclosure/".to_string(),
+            Self::LLM03SupplyChain => "https://genai.owasp.org/llmrisk/llm032025-supply-chain/".to_string(),
+            Self::LLM04DataModelPoisoning => "https://genai.owasp.org/llmrisk/llm042025-data-and-model-poisoning/".to_string(),
+            Self::LLM05ImproperOutputHandling => "https://genai.owasp.org/llmrisk/llm052025-improper-output-handling/".to_string(),
+            Self::LLM06ExcessiveAgency => "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/".to_string(),
+            Self::LLM07SystemPromptLeakage => "https://genai.owasp.org/llmrisk/llm072025-system-prompt-leakage/".to_string(),
+            Self::LLM08VectorEmbeddingWeaknesses => "https://genai.owasp.org/llmrisk/llm082025-vector-and-embedding-weaknesses/".to_string(),
+            Self::LLM09Misinformation => "https://genai.owasp.org/llmrisk/llm092025-misinformation/".to_string(),
+            Self::LLM10UnboundedConsumption => "https://genai.owasp.org/llmrisk/llm102025-unbounded-consumption/".to_string(),
+        }
     }
 
     /// Map traditional attack category to OWASP Top 10:2025
     pub fn from_attack_type(attack_type: &str) -> Option<Self> {
         match attack_type.to_lowercase().as_str() {
+            // Web Application Security (OWASP Top 10:2025)
             "xss" | "sqli" | "sql-injection" | "nosql-injection" | "command-injection" 
             | "ldap-injection" | "xxe" | "ssti" => Some(Self::A05Injection),
             "ssrf" | "path-traversal" | "lfi" | "directory-traversal" 
@@ -92,6 +172,21 @@ impl OwaspCategory {
             "error-handling" | "information-disclosure" => Some(Self::A10MishandlingOfExceptionalConditions),
             "http2-bypass" | "http2" => Some(Self::A02SecurityMisconfiguration),
             "adfs" | "windows-auth" => Some(Self::A07AuthenticationFailures),
+            
+            // LLM/GenAI Security (OWASP LLM Top 10:2025)
+            "prompt-injection" | "jailbreak" | "instruction-hijacking" 
+            | "context-confusion" | "role-reversal" => Some(Self::LLM01PromptInjection),
+            "training-data-leak" | "pii-exposure" | "model-inversion" 
+            | "membership-inference" => Some(Self::LLM02SensitiveInformationDisclosure),
+            "plugin-vulnerability" | "model-backdoor" | "supply-chain-attack" => Some(Self::LLM03SupplyChain),
+            "data-poisoning" | "model-poisoning" | "backdoor-injection" => Some(Self::LLM04DataModelPoisoning),
+            "llm-xss" | "code-generation-injection" | "unsafe-output" => Some(Self::LLM05ImproperOutputHandling),
+            "excessive-permissions" | "function-calling-abuse" | "tool-misuse" => Some(Self::LLM06ExcessiveAgency),
+            "system-prompt-leak" | "instruction-disclosure" | "context-dumping" => Some(Self::LLM07SystemPromptLeakage),
+            "rag-poisoning" | "embedding-attack" | "semantic-manipulation" => Some(Self::LLM08VectorEmbeddingWeaknesses),
+            "hallucination" | "misinformation" | "false-facts" => Some(Self::LLM09Misinformation),
+            "dos" | "token-exhaustion" | "context-flooding" | "resource-exhaustion" => Some(Self::LLM10UnboundedConsumption),
+            
             _ => None,
         }
     }
@@ -206,6 +301,23 @@ pub struct ExtractedData {
     /// Response body snippet (first 500 chars)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub response_snippet: Option<String>,
+    
+    // LLM/GenAI-specific extractions
+    /// System prompts or instructions leaked
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub system_prompts: Vec<String>,
+    /// LLM model information detected
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub model_info: Vec<String>,
+    /// Training data leakage detected
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub training_data_leaked: Vec<String>,
+    /// RAG/retrieval context exposed
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub rag_context: Vec<String>,
+    /// Jailbreak success indicators
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub jailbreak_indicators: Vec<String>,
 }
 
 /// Information disclosure types
@@ -278,6 +390,11 @@ impl ExtractedData {
             internal_ips: Vec::new(),
             adfs_metadata: None,
             response_snippet: None,
+            system_prompts: Vec::new(),
+            model_info: Vec::new(),
+            training_data_leaked: Vec::new(),
+            rag_context: Vec::new(),
+            jailbreak_indicators: Vec::new(),
         }
     }
 
@@ -289,6 +406,11 @@ impl ExtractedData {
             || self.version_info.is_some()
             || !self.internal_ips.is_empty()
             || self.adfs_metadata.is_some()
+            || !self.system_prompts.is_empty()
+            || !self.model_info.is_empty()
+            || !self.training_data_leaked.is_empty()
+            || !self.rag_context.is_empty()
+            || !self.jailbreak_indicators.is_empty()
     }
 }
 
