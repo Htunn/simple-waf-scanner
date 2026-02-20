@@ -27,7 +27,7 @@
         "encoding": "none",
         "method": "POST"
       }
-    },
+    ],
     "matchers": [
       {
         "type": "response_body",
