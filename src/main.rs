@@ -7,7 +7,27 @@ use std::io::{self, Write};
 
 #[derive(Parser)]
 #[command(name = "waf-scan")]
-#[command(about = "WAF detection and bypass testing tool", long_about = None)]
+#[command(about = "WAF detection and bypass testing tool")]
+#[command(long_about = "WAF Scanner - Security testing tool for web applications and LLM/GenAI systems
+
+BASIC USAGE:
+  waf-scan https://example.com
+
+WEB APPLICATION TESTING:
+  waf-scan https://example.com --verbose
+  waf-scan https://example.com --techniques encoding,case,unicode
+
+LLM/GenAI TESTING (OWASP Top 10 for LLM Applications):
+  waf-scan https://api.example.com/chat --llm-mode
+  waf-scan https://api.example.com/chat --llm-mode --techniques role-reversal,multilingual
+  waf-scan https://api.example.com/chat --llm-mode --semantic-analysis --verbose
+
+LLM mode tests for:
+  • LLM01: Prompt Injection & Jailbreaks
+  • LLM02: Sensitive Information Disclosure
+  • LLM03-LLM10: Supply Chain, Data Poisoning, Output Handling, etc.
+
+For LLM testing, use lower concurrency (--concurrency 3-5) and higher delays (--delay 500-1000).")]
 #[command(version)]
 struct Args {
     /// Target URL to scan
@@ -31,11 +51,15 @@ struct Args {
     #[arg(long)]
     techniques: Option<String>,
 
-    /// Enable LLM-specific vulnerability testing (OWASP Top 10 for LLM Applications)
+    /// Enable LLM/GenAI security testing mode (OWASP Top 10 for LLM Applications).
+    /// Tests for prompt injection, jailbreaks, system prompt leakage, sensitive data disclosure,
+    /// and other LLM-specific vulnerabilities. Recommended settings: --concurrency 3-5 --delay 500-1000
     #[arg(long)]
     llm_mode: bool,
 
-    /// Enable semantic analysis for LLM responses (experimental)
+    /// Enable semantic analysis for LLM responses (experimental).
+    /// Analyzes response patterns to detect successful jailbreaks and refusal bypasses.
+    /// Only effective when combined with --llm-mode
     #[arg(long)]
     semantic_analysis: bool,
 
