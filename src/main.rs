@@ -27,7 +27,8 @@ LLM mode tests for:
   • LLM02: Sensitive Information Disclosure
   • LLM03-LLM10: Supply Chain, Data Poisoning, Output Handling, etc.
 
-For LLM testing, use lower concurrency (--concurrency 3-5) and higher delays (--delay 500-1000).")]
+LLM mode automatically uses optimized settings (concurrency=3, delay=500ms, timeout=60s).
+You can override these with --concurrency and --delay if needed.")]
 #[command(version)]
 struct Args {
     /// Target URL to scan
@@ -37,13 +38,13 @@ struct Args {
     #[arg(long)]
     payload_file: Option<String>,
 
-    /// Number of concurrent requests
-    #[arg(long, default_value = "10")]
-    concurrency: usize,
+    /// Number of concurrent requests (default: 10 for web apps, 3 for LLM mode)
+    #[arg(long)]
+    concurrency: Option<usize>,
 
-    /// Delay between requests in milliseconds
-    #[arg(long, default_value = "100")]
-    delay: u64,
+    /// Delay between requests in milliseconds (default: 100 for web apps, 500 for LLM mode)
+    #[arg(long)]
+    delay: Option<u64>,
 
     /// Comma-separated list of evasion techniques to use
     /// Available: encoding, double-encode, case, null-bytes, comments, unicode, path-traversal,
@@ -53,7 +54,8 @@ struct Args {
 
     /// Enable LLM/GenAI security testing mode (OWASP Top 10 for LLM Applications).
     /// Tests for prompt injection, jailbreaks, system prompt leakage, sensitive data disclosure,
-    /// and other LLM-specific vulnerabilities. Recommended settings: --concurrency 3-5 --delay 500-1000
+    /// and other LLM-specific vulnerabilities. Automatically optimizes settings for LLM endpoints
+    /// (concurrency=3, delay=500ms, timeout=60s). Override with --concurrency and --delay if needed.
     #[arg(long)]
     llm_mode: bool,
 
@@ -90,8 +92,18 @@ async fn main() -> anyhow::Result<()> {
 
     // Build configuration
     let mut config = Config::new(args.target);
-    config.concurrency = args.concurrency;
-    config.delay_ms = args.delay;
+    
+    // Auto-adjust defaults for LLM mode if not explicitly set
+    if args.llm_mode {
+        config.concurrency = args.concurrency.unwrap_or(3);
+        config.delay_ms = args.delay.unwrap_or(500);
+        tracing::info!("LLM mode enabled: using concurrency={}, delay={}ms", 
+                      config.concurrency, config.delay_ms);
+    } else {
+        config.concurrency = args.concurrency.unwrap_or(10);
+        config.delay_ms = args.delay.unwrap_or(100);
+    }
+    
     config.payload_file = args.payload_file;
     config.verbose = args.verbose;
     config.llm_mode = args.llm_mode;

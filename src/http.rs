@@ -4,13 +4,16 @@ use std::time::Duration;
 
 /// Build an HTTP client for scanning with HTTP/2 support
 pub fn build_client(config: &Config) -> crate::error::Result<Client> {
+    // Use longer timeout for LLM mode (LLM responses can be slow)
+    let timeout_secs = if config.llm_mode { 60 } else { 30 };
+    
     let client = ClientBuilder::new()
         // Allow invalid certificates for testing environments
         .danger_accept_invalid_certs(true)
         // Follow redirects with a limit
         .redirect(reqwest::redirect::Policy::limited(10))
         // Set timeouts
-        .timeout(Duration::from_secs(30))
+        .timeout(Duration::from_secs(timeout_secs))
         .connect_timeout(Duration::from_secs(10))
         // Set custom user agent
         .user_agent(&config.user_agent)
@@ -37,47 +40,67 @@ pub fn build_client(config: &Config) -> crate::error::Result<Client> {
 }
 
 /// Make a GET request and return response details
+/// Automatically retries on 429 (rate limit) responses with exponential backoff
 pub async fn send_request(
     client: &Client,
     url: &str,
     query_param: Option<(&str, &str)>,
 ) -> crate::error::Result<HttpResponse> {
-    let mut request = client.get(url);
+    // Retry logic for rate limiting (429 responses)
+    let max_retries = 3;
+    
+    for retry_count in 0..=max_retries {
+        let mut request = client.get(url);
+        
+        if let Some((key, value)) = query_param {
+            request = request.query(&[(key, value)]);
+        }
+        
+        let start = std::time::Instant::now();
+        let response = request.send().await?;
+        let duration = start.elapsed();
+        
+        let status = response.status().as_u16();
+        
+        // Check for rate limiting - retry if not the last attempt
+        if status == 429 && retry_count < max_retries {
+            let backoff_ms = 1000 * 2_u64.pow(retry_count as u32); // Exponential backoff: 1s, 2s, 4s
+            tracing::warn!("Rate limited (429), retrying in {}ms (attempt {}/{})", 
+                          backoff_ms, retry_count + 1, max_retries);
+            tokio::time::sleep(Duration::from_millis(backoff_ms)).await;
+            continue;
+        }
+        
+        // Process response
+        let http_version = format!("{:?}", response.version());
+        let headers = response
+            .headers()
+            .iter()
+            .map(|(k, v)| {
+                (
+                    k.as_str().to_lowercase(),
+                    v.to_str().unwrap_or("").to_string(),
+                )
+            })
+            .collect();
 
-    if let Some((key, value)) = query_param {
-        request = request.query(&[(key, value)]);
+        // Extract cookies
+        let cookies: Vec<String> = response.cookies().map(|c| c.name().to_string()).collect();
+
+        let body = response.text().await.unwrap_or_default();
+
+        return Ok(HttpResponse {
+            status_code: status,
+            headers,
+            body,
+            cookies,
+            response_time_ms: duration.as_millis() as u64,
+            http_version,
+        });
     }
-
-    let start = std::time::Instant::now();
-    let response = request.send().await?;
-    let duration = start.elapsed();
-
-    let status = response.status().as_u16();
-    let http_version = format!("{:?}", response.version());
-    let headers = response
-        .headers()
-        .iter()
-        .map(|(k, v)| {
-            (
-                k.as_str().to_lowercase(),
-                v.to_str().unwrap_or("").to_string(),
-            )
-        })
-        .collect();
-
-    // Extract cookies
-    let cookies: Vec<String> = response.cookies().map(|c| c.name().to_string()).collect();
-
-    let body = response.text().await.unwrap_or_default();
-
-    Ok(HttpResponse {
-        status_code: status,
-        headers,
-        body,
-        cookies,
-        response_time_ms: duration.as_millis() as u64,
-        http_version,
-    })
+    
+    // This should never be reached due to the return in the loop
+    unreachable!("Retry loop should always return")
 }
 
 /// HTTP response data
